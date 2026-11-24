@@ -9,7 +9,7 @@
 :root{--bg:#f4f6fa;--c:#fff;--t:#1b2230;--m:#6b7587;--b:#dfe4ee;--p:#2563eb;--am:#f59e0b;--pm:#14b8a6;--late:#6366f1;--g:#16a34a;--o:#d97706;--w:#fff4e0}
 @media(prefers-color-scheme:dark){:root{--bg:#10141c;--c:#1a202c;--t:#e8ecf4;--m:#97a1b5;--b:#2b3447;--w:#3a2c10}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:16px/1.4 -apple-system,system-ui,sans-serif;padding-bottom:84px}
-header{padding:calc(14px + env(safe-area-inset-top)) 16px 6px;font-weight:700;font-size:20px}header small{font-weight:400;font-size:12px;color:var(--m);margin-left:6px}.pos{color:var(--p);font-weight:600}textarea{width:100%;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t)}
+header{padding:calc(14px + env(safe-area-inset-top)) 16px 6px;font-weight:700;font-size:20px}header small{font-weight:400;font-size:12px;color:var(--m);margin-left:6px}.pos{color:var(--p);font-weight:600}#view .sw{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}.swb,.sec button.swb{width:44px;height:44px;margin:0;border-radius:50%;padding:0;border:2px solid var(--b)}.swb.on{border-color:var(--p);border-width:3px}textarea{width:100%;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t)}
 #view{max-width:560px;margin:0 auto;padding:6px 14px}
 .card{background:var(--c);border:1px solid var(--b);border-radius:14px;overflow:hidden;margin:8px 0}
 .scroll{overflow-x:auto}
@@ -53,7 +53,7 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:12px;paddin
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.2.0';
+const APP_VERSION='1.3.0';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -71,21 +71,21 @@ function defaultSettings(today){
   return {
     startDate:iso(mondayOf(dayNum(today))), weeks:4,
     targetMin:1380, tolMin:0,
-    minWD:5, maxWD:6, maxConsec:6, restH:11, step:15, restPref:'none', code:'190',
+    minWD:5, maxWD:6, maxConsec:6, restH:11, step:15, restPref:'none', code:'190', bg:'',
     positions:['Isola 2','Fastlane 2','Bazar 3 NP','Cassa Esterna','Retrocassa NP1','x-lavagna ASZ'],
     fasce:[
       {id:'M',name:'Mattina',mode:'start',from:450,to:570},
       {id:'P',name:'Pomeriggio',mode:'start',from:750,to:1050},
       {id:'C',name:'Chiusura',mode:'end',from:1260,to:1275}
     ],
-    days:DAYN.map(()=>({avail:'on',durMin:180,durMax:300,from:450,to:1275,tend:1,fasce:{}})),
+    days:DAYN.map(()=>({avail:'on',durMin:240,durMax:300,from:450,to:1275,tend:1,fasce:{}})),
     vacations:[]
   };
 }
 const restDays=()=>Array.from({length:7},()=>({rest:true,s:null,e:null,note:'',pos:''}));
 function newPlan(S){
   const b=mondayOf(dayNum(S.startDate));
-  return Array.from({length:S.weeks},(_,i)=>({start:iso(b+7*i),target:null,days:restDays()}));
+  return Array.from({length:S.weeks},(_,i)=>({start:iso(b+7*i),target:null,wd:null,days:restDays()}));
 }
 function weekTotal(w){return w.days.reduce((a,d)=>a+((d.rest||d.s==null||d.e==null)?0:Math.max(0,d.e-d.s)),0);}
 function buildShifts(plan){
@@ -114,8 +114,9 @@ function validate(plan,S){
     });
     const T=w.target==null?S.targetMin:w.target;
     if(Math.abs(tot-T)>S.tolMin)add(wi,null,'Ore '+dur(tot)+' invece di '+dur(T));
-    if(n<S.minWD)add(wi,null,'Solo '+n+' giorni lavorati (min '+S.minWD+')');
-    if(n>S.maxWD)add(wi,null,n+' giorni lavorati (max '+S.maxWD+')');
+    const wmin=w.wd==null?S.minWD:w.wd,wmax=w.wd==null?S.maxWD:w.wd;
+    if(n<wmin)add(wi,null,'Solo '+n+' giorni lavorati (min '+wmin+')');
+    if(n>wmax)add(wi,null,n+' giorni lavorati (max '+wmax+')');
   });
   const sh=buildShifts(plan);
   for(let i=1;i<sh.length;i++){
@@ -155,8 +156,9 @@ function setup(S,plan,wi){
   return {w,base,st,T,cfg,cand};
 }
 function tryWeek(S,plan,wi,strict){
-  const {base,st,T,cfg,cand}=setup(S,plan,wi);
-  const lo=Math.min(S.minWD,cand.length),hi=Math.max(lo,Math.min(S.maxWD,cand.length));
+  const {w,base,st,T,cfg,cand}=setup(S,plan,wi);
+  const wmin=w.wd==null?S.minWD:w.wd,wmax=w.wd==null?S.maxWD:w.wd;
+  const lo=Math.min(wmin,cand.length),hi=Math.max(lo,Math.min(wmax,cand.length));
   const n=lo+rnd(hi-lo+1);
   const pool=cand.slice(),ch=[];
   while(ch.length<n){const i=wpick(pool,di=>cfg[di].c.avail==='avoid'?0.25:1);ch.push(pool.splice(i,1)[0]);}
@@ -240,7 +242,76 @@ function diagnose(S,plan,wi){
   if(!r.length)r.push('vincoli su riposo minimo, fasce orarie o giorni consecutivi troppo stretti');
   return r.join('; ');
 }
-if(typeof module!=='undefined')module.exports={DAYN,defaultSettings,newPlan,genAll,genWeek,validate,weekTotal,dayNum,iso,m2t,dur,mondayOf,diagnose};
+
+/* ---------- IMPORT ---------- */
+function planFromShifts(sh){
+  if(!sh.length)return null;
+  const mn=mondayOf(Math.min(...sh.map(x=>x.abs))),mx=mondayOf(Math.max(...sh.map(x=>x.abs)));
+  const plan=Array.from({length:(mx-mn)/7+1},(_,i)=>({start:iso(mn+7*i),target:null,wd:null,days:restDays()}));
+  sh.forEach(x=>{
+    const w=plan[Math.floor((x.abs-mn)/7)],di=(x.abs-mn)%7,d=w.days[di];
+    if(d.rest){w.days[di]={rest:false,s:x.s,e:x.e,note:x.note||'',pos:x.pos||''};}
+    else{
+      d.s=Math.min(d.s,x.s);d.e=Math.max(d.e,x.e);
+      if(x.pos&&!(d.pos||'').split(' / ').includes(x.pos))d.pos=d.pos?d.pos+' / '+x.pos:x.pos;
+      if(x.note&&!d.note)d.note=x.note;
+    }
+  });
+  return plan;
+}
+function csvSplit(line,sep){
+  const out=[];let cur='',q=false;
+  for(let i=0;i<line.length;i++){const c=line[i];
+    if(q){if(c==='"'){if(line[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}
+    else if(c==='"')q=true;else if(c===sep){out.push(cur);cur='';}else cur+=c;}
+  out.push(cur);return out;
+}
+function parseCSV(text){
+  const lines=text.replace(/^﻿/,'').split(/\r?\n/).filter(x=>x.trim());
+  if(!lines.length)return null;
+  const sep=(lines[0].match(/;/g)||[]).length>=(lines[0].match(/,/g)||[]).length?';':',';
+  const sh=[];
+  lines.slice(1).forEach(l=>{
+    const c=csvSplit(l,sep),m=(c[0]||'').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if(!m||!/^\d{1,2}:\d{2}$/.test((c[2]||'').trim())||!/^\d{1,2}:\d{2}$/.test((c[3]||'').trim()))return;
+    sh.push({abs:dayNum(m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0')),s:t2m(c[2].trim()),e:t2m(c[3].trim()),pos:(c[5]||'').trim(),note:(c[6]||'').trim()});
+  });
+  return planFromShifts(sh);
+}
+function parseICS(text,positions){
+  const t=text.replace(/\r?\n[ \t]/g,'');const sh=[];
+  t.split('BEGIN:VEVENT').slice(1).forEach(b=>{
+    const lc=b.match(/LOCATION:(.*)/),a=b.match(/DTSTART[^:]*:(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/),z=b.match(/DTEND[^:]*:(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/),s=b.match(/SUMMARY:(.*)/);
+    if(!a||!z)return;
+    const parts=(s?s[1].trim():'').split(' - ').slice(1);let pos=lc?lc[1].trim():'',note='';
+    if(!lc&&parts.length&&positions&&positions.includes(parts[0])){pos=parts[0];note=parts.slice(1).join(' - ');}else note=parts.join(' - ');
+    sh.push({abs:dayNum(a[1]+'-'+a[2]+'-'+a[3]),s:+a[4]*60+ +a[5],e:+z[4]*60+ +z[5],pos,note});
+  });
+  return planFromShifts(sh);
+}
+function parseText(text){
+  const sh=[];let start=null,last=-1,code='';
+  const idxOf=p=>DAYN.findIndex(d=>d.toLowerCase()===p.toLowerCase());
+  const RANGE=/(\d{1,2})[:.](\d{2})\s*[-–—]\s*(\d{1,2})[:.](\d{2})/;
+  text.split(/\r?\n/).forEach(raw=>{
+    const line=raw.trim();if(!line)return;
+    const h=line.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s*[-–—]\s*(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if(h&&!/^(Lu|Ma|Me|Gi|Ve|Sa|Do)\b/i.test(line)){start=mondayOf(dayNum(h[3]+'-'+h[2].padStart(2,'0')+'-'+h[1].padStart(2,'0')));last=-1;return;}
+    if(start==null)return;
+    const pm=line.match(/^(Lu|Ma|Me|Gi|Ve|Sa|Do)\b/i);
+    const r=line.match(RANGE);
+    if(!r){if(/riposo/i.test(line)){last=pm?idxOf(pm[1]):last+1;}return;}
+    let di=pm?idxOf(pm[1]):last;if(di<0)return;last=di;
+    let tail=line.slice(line.indexOf(r[0])+r[0].length).replace(/\(\d+:\d{2}\)/,'').trim(),pos='',note='';
+    const b=tail.match(/\[(.*?)\]/);
+    if(b){pos=b[1].trim();note=tail.replace(b[0],'').trim();}
+    else{const c=tail.match(/^(\d{3})\s+(.*)$/);if(c){code=c[1];tail=c[2];}pos=tail.trim();}
+    sh.push({abs:start+di,s:+r[1]*60+ +r[2],e:+r[3]*60+ +r[4],pos,note});
+  });
+  const plan=planFromShifts(sh);
+  return plan?{plan,code}:null;
+}
+if(typeof module!=='undefined')module.exports={parseCSV,parseICS,parseText,planFromShifts,DAYN,defaultSettings,newPlan,genAll,genWeek,validate,weekTotal,dayNum,iso,m2t,dur,mondayOf,diagnose};
 
 const KEY='turni.v1';
 let S,plan,cur=0,tab='plan',vacFrom='',vacTo='';
@@ -267,6 +338,26 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clea
 const get=p=>p.split('.').reduce((o,k)=>o==null?o:o[k],S);
 function set(p,v){const k=p.split('.');const last=k.pop();k.reduce((o,x)=>o[x],S)[last]=v;}
 
+
+/* ---------- TEMA ---------- */
+const SWATCH=['','#fff7e6','#e8f5e9','#e3f2fd','#f3e5f5','#fde8ec','#e0f2f1','#1e293b','#14281d','#2a1a2e'];
+function applyTheme(){
+  const r=document.documentElement.style;
+  ['--bg','--c','--t','--m','--b','--w'].forEach(k=>r.removeProperty(k));
+  let meta=document.querySelector('meta[name=theme-color]');
+  if(!S.bg||!/^#[0-9a-f]{6}$/i.test(S.bg)){if(meta)meta.content='#2563eb';return;}
+  const n=parseInt(S.bg.slice(1),16),R=n>>16,G=(n>>8)&255,B=n&255,dark=(0.299*R+0.587*G+0.114*B)/255<0.5;
+  const mix=(a,b,t)=>Math.round(a+(b-a)*t),hx=(a,b,c)=>'#'+[a,b,c].map(x=>x.toString(16).padStart(2,'0')).join('');
+  const to=dark?255:0;
+  r.setProperty('--bg',S.bg);
+  r.setProperty('--c',dark?hx(mix(R,255,.08),mix(G,255,.08),mix(B,255,.08)):hx(mix(R,255,.65),mix(G,255,.65),mix(B,255,.65)));
+  r.setProperty('--b',hx(mix(R,to,.16),mix(G,to,.16),mix(B,to,.16)));
+  r.setProperty('--t',dark?'#e8ecf4':'#1b2230');
+  r.setProperty('--m',dark?'#a8b1c4':'#5b6578');
+  r.setProperty('--w',dark?'#3a2c10':'#fff4e0');
+  if(meta)meta.content=S.bg;
+}
+
 /* ---------- PIANO ---------- */
 function cls(d){if(d.rest)return 'rest';if(d.s<720)return 'am';if(d.e>=1230)return 'late';return 'pm';}
 function viewPlan(){
@@ -288,7 +379,9 @@ function viewPlan(){
   <div class="btns"><button class="pri" data-act="regen">🔄 Rigenera settimana</button>
   <button data-act="regenall">🎲 Rigenera tutto</button></div>
   <label class="f"><span>Obiettivo ore di questa settimana</span>
-  <input type="number" step="0.25" min="0" placeholder="${(S.targetMin/60)}" value="${w.target==null?'':w.target/60}" data-wt="1"></label>`;
+  <input type="number" step="0.25" min="0" placeholder="${(S.targetMin/60)}" value="${w.target==null?'':w.target/60}" data-wt="1"></label>
+  <label class="f"><span>Giorni lavorati di questa settimana</span>
+  <input type="number" min="1" max="7" placeholder="${S.minWD}-${S.maxWD}" value="${w.wd==null?'':w.wd}" data-wd="1"></label>`;
 }
 function viewOverview(){
   const iss=validate(plan,S);
@@ -334,6 +427,9 @@ function viewSettings(){
   const vac=S.vacations.length?`<div class="chips">${S.vacations.map((d,i)=>`<span class="chip">${ddmm(dayNum(d))} <b data-act="delvac" data-i="${i}">✕</b></span>`).join('')}</div>`:'<p class="hint">Nessun giorno impostato.</p>';
   return `<div class="btns"><button class="pri" data-act="apply">✅ Applica e genera il piano</button></div>
   <p class="hint">Le modifiche si salvano subito; per ricalcolare i turni usa il pulsante qui sopra.</p>
+  <details><summary>🎨 Aspetto</summary><div class="sec"><p class="hint">Colore di sfondo dell'app</p>
+    <div class="sw">${SWATCH.map(c=>`<button class="swb ${(S.bg||'')===c?'on':''}" style="background:${c||'#f4f6fa'}" data-act="bg" data-c="${c}">${c?'':'↺'}</button>`).join('')}</div>
+    <label class="f"><span>Colore personalizzato</span><input type="color" id="bgc" value="${S.bg||'#f4f6fa'}"></label></div></details>
   <details open><summary>📆 Periodo</summary><div class="sec">${F('Primo lunedì','startDate','date')}${F('Numero di settimane','weeks','int',{min:1,max:26})}</div></details>
   <details open><summary>⏱️ Ore e regole</summary><div class="sec">
     ${F('Ore settimanali (h)','targetMin','hours')}${F('Tolleranza (minuti)','tolMin','int',{step:5})}
@@ -374,7 +470,7 @@ function asICS(){
   plan.forEach(w=>{const b=dayNum(w.start);w.days.forEach((d,di)=>{
     if(d.rest||d.s==null)return;const ds=iso(b+di).replace(/-/g,'');
     ev.push(['BEGIN:VEVENT','UID:turni-'+ds+'-'+d.s+'@turni','DTSTAMP:'+st,'DTSTART:'+ds+'T'+pad(Math.floor(d.s/60))+pad(d.s%60)+'00',
-      'DTEND:'+ds+'T'+pad(Math.floor(d.e/60))+pad(d.e%60)+'00','SUMMARY:Turno lavoro'+(d.pos?' - '+d.pos:'')+(d.note?' - '+d.note:''),'END:VEVENT'].join('\r\n'));});});
+      'DTEND:'+ds+'T'+pad(Math.floor(d.e/60))+pad(d.e%60)+'00','SUMMARY:Turno lavoro'+(d.note?' - '+d.note:''),...(d.pos?['LOCATION:'+d.pos]:[]),'END:VEVENT'].join('\r\n'));});});
   return 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Turni//IT\r\n'+ev.join('\r\n')+'\r\nEND:VCALENDAR\r\n';
 }
 function download(name,mime,txt){
@@ -394,7 +490,10 @@ function viewExport(){
   <button data-act="ics">📆 Scarica calendario (.ics)</button>
   <button data-act="print">🖨️ Stampa / salva PDF</button>
   <button data-act="backup">💾 Backup completo (.json)</button>
-  <label class="filebtn">📥 Ripristina backup<input type="file" accept=".json,application/json" id="restore"></label></div>`;
+  <label class="filebtn">📥 Importa file<input type="file" accept=".json,.csv,.ics,.txt,.pdf,application/json,application/pdf,text/csv,text/calendar,text/plain" id="imp"></label></div>
+  <p class="hint">Importa: backup .json, CSV, calendario .ics, testo .txt e PDF creati da questa app. Per un PDF-foto (come il foglio turni cartaceo) copia il testo dalla foto (iPhone: tieni premuto sul testo › Copia) e incollalo qui sotto.</p>
+  <textarea id="imptxt" rows="6" placeholder="Incolla qui il testo dei turni…"></textarea>
+  <div class="btns"><button data-act="imptxt">📝 Importa dal testo incollato</button></div>`;
 }
 function renderPrint(){
   $('#print').innerHTML=plan.map(w=>{const b=dayNum(w.start);
@@ -477,7 +576,8 @@ function makePDF(){
     objs[c]=`<< /Length ${st.length} >>\nstream\n${st}\nendstream`;
     objs[pg]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${c} 0 R >>`;kids.push(pg+' 0 R');});
   objs[2]=`<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${kids.length} >>`;
-  let out='%PDF-1.4\n';const off=[];
+  const emb=btoa(unescape(encodeURIComponent(JSON.stringify({v:APP_VERSION,S,plan}))));
+  let out='%PDF-1.4\n%TURNIDATA:'+emb+'\n';const off=[];
   for(let i=1;i<objs.length;i++){off[i]=out.length;out+=i+' 0 obj\n'+objs[i]+'\nendobj\n';}
   const xr=out.length;
   out+='xref\n0 '+objs.length+'\n0000000000 65535 f \n'+off.slice(1).map(o=>String(o).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<< /Size '+objs.length+' /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF';
@@ -508,9 +608,52 @@ function openEdit(di){
   $('#sheet').classList.add('on');
 }
 
+
+/* ---------- IMPORT UI ---------- */
+function applyImported(p,code,full){
+  if(!p||!p.length){toast('Nessun turno riconosciuto');return;}
+  if(!confirm('Importare '+p.length+' settimana/e? Il piano attuale verrà sostituito.'))return;
+  if(full){S=merge(defaultSettings(todayIso()),full);}
+  else{
+    S.positions=S.positions.concat([...new Set(p.flatMap(w=>w.days.filter(d=>d.pos).flatMap(d=>d.pos.split(' / '))))].filter(x=>!S.positions.includes(x)));
+    if(code)S.code=code;
+  }
+  S.weeks=p.length;S.startDate=p[0].start;plan=p;cur=0;tab='plan';applyTheme();render();toast('Importato ✅ ('+p.length+' settimane)');
+}
+function importString(text,ext){
+  try{
+    if(ext==='json'){
+      const j=JSON.parse(text);
+      if(j&&j.plan)return applyImported(j.plan,null,j.S);
+      if(Array.isArray(j))return applyImported(j);
+      return toast('JSON non riconosciuto');
+    }
+    if(ext==='csv')return applyImported(parseCSV(text));
+    if(ext==='ics')return applyImported(parseICS(text,S.positions));
+    const r=parseText(text);
+    if(!r)return toast('Testo non riconosciuto: servono l’intestazione con le date (gg/mm/aaaa - gg/mm/aaaa) e le righe dei turni');
+    applyImported(r.plan,r.code);
+  }catch(e){toast('File non valido');}
+}
+function doImportText(){importString($('#imptxt').value,'txt');}
+function importFile(f){
+  const ext=(f.name.split('.').pop()||'').toLowerCase(),rd=new FileReader();
+  if(ext==='pdf'){
+    rd.onload=()=>{
+      const u=new Uint8Array(rd.result);let s='';for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));
+      const m=s.match(/%TURNIDATA:([A-Za-z0-9+\/=]+)/);
+      if(!m)return toast('PDF senza dati dell’app (foto/scansione): copia il testo e usa “Importa dal testo incollato”');
+      try{const j=JSON.parse(decodeURIComponent(escape(atob(m[1]))));applyImported(j.plan,null,j.S);}catch(e){toast('PDF non valido');}
+    };
+    rd.readAsArrayBuffer(f);
+  }else{rd.onload=()=>importString(rd.result,ext);rd.readAsText(f);}
+}
+
 /* ---------- RENDER ---------- */
 function render(){
+  const keep=tab==='set'?[...document.querySelectorAll('#view details')].map(d=>d.open):null,ys=window.scrollY;
   $('#view').innerHTML=tab==='plan'?viewPlan():tab==='ov'?viewOverview():tab==='set'?viewSettings():viewExport();
+  if(keep&&tab==='set'){document.querySelectorAll('#view details').forEach((d,i)=>{if(keep[i]!==undefined)d.open=keep[i];});window.scrollTo(0,ys);}
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
   renderPrint();save();
 }
@@ -551,7 +694,9 @@ document.addEventListener('click',ev=>{
       for(let n=dayNum(f);n<=dayNum(e);n++){const x=iso(n);if(!S.vacations.includes(x))S.vacations.push(x);}
       S.vacations.sort();vacFrom=vacTo='';render();break;}
     case 'delvac':S.vacations.splice(+t.dataset.i,1);render();break;
-    case 'reset':if(confirm('Ripristinare le impostazioni predefinite? Il piano attuale resta.')){S=defaultSettings(todayIso());render();}break;
+    case 'bg':S.bg=t.dataset.c;applyTheme();render();break;
+    case 'imptxt':doImportText();break;
+    case 'reset':if(confirm('Ripristinare le impostazioni predefinite? Il piano attuale resta.')){S=defaultSettings(todayIso());applyTheme();render();}break;
     case 'copytxt':copy(asText());break;
     case 'sharetxt':if(navigator.share)navigator.share({text:asText()}).catch(()=>{});else copy(asText());break;
     case 'csv':download('turni.csv','text/csv;charset=utf-8',asCSV());break;
@@ -563,11 +708,9 @@ document.addEventListener('click',ev=>{
 });
 document.addEventListener('change',ev=>{
   const el=ev.target;
-  if(el.id==='restore'){
-    const f=el.files[0];if(!f)return;const r=new FileReader();
-    r.onload=()=>{try{const j=JSON.parse(r.result);S=merge(defaultSettings(todayIso()),j.S);plan=j.plan;cur=0;tab='plan';render();toast('Backup ripristinato ✅');}catch(e){toast('File non valido');}};
-    r.readAsText(f);return;
-  }
+  if(el.id==='imp'){const f=el.files[0];if(f)importFile(f);el.value='';return;}
+  if(el.dataset.wd){const v=el.value;plan[cur].wd=v===''?null:Math.max(1,Math.min(7,parseInt(v,10)||1));render();return;}
+  if(el.id==='bgc'){S.bg=el.value;applyTheme();save();render();return;}
   if(el.dataset.wt){const v=el.value;plan[cur].target=v===''?null:Math.round(parseFloat(v)*60);render();return;}
   if(el.id==='vf'){vacFrom=el.value;return;}if(el.id==='vt'){vacTo=el.value;return;}
   const p=el.dataset.bind;if(!p)return;
@@ -583,6 +726,6 @@ document.addEventListener('change',ev=>{
   if(p.endsWith('.mode')||/^fasce\.\d+\.name$/.test(p))render();
 });
 if('serviceWorker' in navigator&&false){}
-load();$('#ver').textContent='v'+APP_VERSION;render();
+load();applyTheme();$('#ver').textContent='v'+APP_VERSION;render();
 
 </script></body></html>
