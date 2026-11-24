@@ -36,7 +36,7 @@ summary{padding:13px 0;font-weight:600;cursor:pointer}.sec{padding-bottom:12px}.
 .fas{border-bottom:2px solid var(--b);padding-bottom:6px;margin-bottom:8px}
 .chips{display:flex;flex-wrap:wrap;gap:4px 16px}.chips label.f{border:0;flex:1 1 40%}
 .chip{background:var(--bg);border:1px solid var(--b);border-radius:20px;padding:4px 10px;font-size:14px}.chip b{cursor:pointer;margin-left:4px}
-table.ov{border-collapse:collapse;width:100%;text-align:center;font-size:13px}
+table.ov{border-collapse:collapse;width:100%;table-layout:fixed;text-align:center;font-size:13px}table.ov td,table.ov th{overflow-wrap:anywhere}
 table.ov th,table.ov td{padding:8px 4px;border-bottom:1px solid var(--b);border-right:1px solid var(--b)}
 table.ov td{cursor:pointer;background-repeat:no-repeat;background-size:100% 4px;background-position:top}table.ov td.am{background-image:linear-gradient(var(--am),var(--am))}table.ov td.pm{background-image:linear-gradient(var(--pm),var(--pm))}table.ov td.late{background-image:linear-gradient(var(--late),var(--late))}table.ov td.rest{color:var(--m)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}.dot.am{background:var(--am)}.dot.pm{background:var(--pm)}.dot.late{background:var(--late)}.f2{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b)}.f2 span{flex:1}.f2 small{color:var(--m)}.f2 input{width:62px;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t);text-align:center}.wk{color:var(--m);font-weight:400}.nav small{color:var(--m);font-weight:400}details.hw summary{padding:12px 14px}details.hw{padding:0}.guide h4{margin:10px 0 4px}.guide p,.guide li{font-size:15px;margin:4px 0}.guide ul{padding-left:20px;margin:4px 0}
 .tt{font-weight:700}
@@ -46,14 +46,14 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 #sheet .box{background:var(--c);width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}#sheet h3{margin:0 0 6px}#sheet h3 small{font-weight:400;color:var(--m);font-size:13px}table.ov .pos{font-size:11px;font-weight:600}
 #toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;max-width:90%;text-align:center;z-index:9}#toast.on{opacity:1}
 #print{display:none}
-@media print{body>*:not(#print){display:none!important}#print{display:block;color:#000;background:#fff;padding:0}#print h3{margin:18px 0 4px;display:flex;justify-content:space-between}#print table{width:100%;border-collapse:collapse}#print td{border:1px solid #999;padding:5px 8px}#print td:last-child{text-align:right;width:70px}}
+#print .slips{display:none}@media print{#print .slips{display:block;page-break-before:always}#print .sg{display:grid;grid-template-columns:1fr 1fr;gap:14px}#print .slip{border:1px dashed #555;padding:5px;break-inside:avoid;font-size:11px}#print .sh,#print .sr{display:flex;justify-content:space-between;padding:2px 3px}#print .sr{border-top:1px solid #777}#print .sr i{font-style:normal;border-left:1px solid #777;padding-left:6px;min-width:38px;text-align:right}#print .slip .sr:last-child{border-bottom:1px solid #777}body>*:not(#print){display:none!important}#print{display:block;color:#000;background:#fff;padding:0}#print h3{margin:18px 0 4px;display:flex;justify-content:space-between}#print table{width:100%;border-collapse:collapse}#print td{border:1px solid #999;padding:5px 8px}#print td:last-child{text-align:right;width:70px}}
 </style></head><body>
 <header><span>🗓️ Turni <small id="ver"></small></span><button id="helpb" data-act="help" aria-label="Guida">❓</button></header><div id="upd" data-act="upd" hidden></div><div id="view"></div>
 <nav><button data-tab="plan">📅<br>Piano</button><button data-tab="ov">🗂️<br>Panoramica</button><button data-tab="set">⚙️<br>Impostazioni</button><button data-tab="exp">📤<br>Esporta/Importa</button></nav>
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.7.1';
+const APP_VERSION='1.8.0';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -401,7 +401,7 @@ function viewPlan(){
 }
 function viewOverview(){
   const iss=validate(plan,S);
-  let h='<div class="card scroll"><table class="ov"><tr><th></th>'+plan.map((w,i)=>`<th data-act="goto" data-wi="${i}">S${isoWeek(dayNum(w.start))}<br>${ddmm(dayNum(w.start))}</th>`).join('')+'</tr>';
+  let h='<div class="card scroll"><table class="ov" style="min-width:'+(34+plan.length*84)+'px"><colgroup><col style="width:34px">'+plan.map(()=>'<col>').join('')+'</colgroup><tr><th></th>'+plan.map((w,i)=>`<th data-act="goto" data-wi="${i}">S${isoWeek(dayNum(w.start))}<br>${ddmm(dayNum(w.start))}</th>`).join('')+'</tr>';
   for(let di=0;di<7;di++){
     h+=`<tr><th>${DAYN[di]}</th>`+plan.map((w,wi)=>{const d=w.days[di];
       return `<td class="${cls(d)}" data-act="oedit" data-wi="${wi}" data-di="${di}">${d.rest?'Riposo':m2t(d.s)+'<br>'+m2t(d.e)+(d.pos?`<br><small class="pos">${esc(d.pos)}</small>`:'')}${iss[wi].some(x=>x.di===di)?' ⚠️':''}</td>`;}).join('')+'</tr>';
@@ -523,7 +523,10 @@ function viewExport(){
 function renderPrint(){
   $('#print').innerHTML=plan.map(w=>{const b=dayNum(w.start);
     return `<h3>Sett. ${isoWeek(b)} · ${ddmmyyyy(b)} – ${ddmmyyyy(b+6)} <span>${dur(weekTotal(w))}</span></h3><table>`+w.days.map((d,di)=>
-      `<tr><td>${DAYN[di]} ${ddmm(b+di)}</td><td>${d.rest?'Riposo':m2t(d.s)+' – '+m2t(d.e)}${d.pos?' · '+esc(d.pos):''}${d.note?' ('+esc(d.note)+')':''}</td><td>${d.rest?'0:00':dur(d.e-d.s)}</td></tr>`).join('')+'</table>';}).join('');
+      `<tr><td>${DAYN[di]} ${ddmm(b+di)}</td><td>${d.rest?'Riposo':m2t(d.s)+' – '+m2t(d.e)}${d.pos?' · '+esc(d.pos):''}${d.note?' ('+esc(d.note)+')':''}</td><td>${d.rest?'0:00':dur(d.e-d.s)}</td></tr>`).join('')+'</table>';}).join('')+
+  '<div class="slips"><h3 class="nobrk">Tagliandini da ritagliare</h3><div class="sg">'+plan.map(w=>{const b=dayNum(w.start);
+    return `<div class="slip"><div class="sh"><b>${ddmmyyyy(b)} - ${ddmmyyyy(b+6)}</b><span>${dur(weekTotal(w))}</span></div>`+w.days.map(d=>
+      `<div class="sr"><span>${d.rest?'Riposo':m2t(d.s)+' - '+m2t(d.e)+(S.code?' '+esc(S.code):'')+(d.pos?' '+esc(d.pos):'')}</span><i>${d.rest?'0:00':dur(d.e-d.s)}</i></div>`).join('')+'</div>';}).join('')+'</div></div>';
 }
 
 /* ---------- PDF ---------- */
@@ -591,6 +594,28 @@ function makePDF(){
     ln(M,top,M,y,0.8);box(M,top-22,tw,y-top+22);
     y+=20;
   }
+  /* Foglio 3: tagliandini */
+  newPage();
+  txt(M,y+14,14,'Tagliandini da ritagliare',true);y+=26;
+  const SW=255,SH=134,SR=15;
+  let sx=0,sy=y;
+  plan.forEach(w=>{
+    if(sy+SH>H-M-18){newPage();sy=y;sx=0;}
+    const x0=M+sx*(SW+15),y0=sy,b=dayNum(w.start),xr=x0+SW-40;
+    ops.push(`0.4 G 0.6 w [3 3] 0 d ${x0-3} ${H-y0+3-SH} ${SW+6} ${SH} re S [] 0 d`);
+    txt(x0+3,y0+11,9.5,ddmmyyyy(b)+' - '+ddmmyyyy(b+6),true);
+    txt(xr+4,y0+11,9.5,dur(weekTotal(w)),true);
+    const top=y0+17;
+    w.days.forEach((d,di)=>{
+      const s=d.rest?'Riposo':DAYN[di]+' '+m2t(d.s)+' - '+m2t(d.e)+(S.code?' '+S.code:'')+(d.pos?' '+d.pos:'')+(d.note?' ('+d.note+')':'');
+      const sz=Math.max(6.5,Math.min(9,(SW-48)/(s.length*0.5)));
+      txt(x0+4,top+di*SR+10.5,sz,s,false);
+      txt(xr+4,top+di*SR+10.5,8.5,d.rest?'0:00':dur(d.e-d.s));
+      if(di)ln(x0,top+di*SR,x0+SW,top+di*SR);
+    });
+    box(x0,top,SW,7*SR);ln(xr,top,xr,top+7*SR);
+    sx++;if(sx>1){sx=0;sy+=SH+14;}
+  });
   pages.push(ops);
   pages.forEach((p,i)=>{p.push(`BT /F1 8 Tf 0.5 0.53 0.6 rg ${M} 24 Td (${enc('Turni v'+APP_VERSION+'  ·  pagina '+(i+1)+' di '+pages.length)}) Tj ET`);});
   const objs=[];
