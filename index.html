@@ -53,7 +53,7 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.5.5';
+const APP_VERSION='1.5.6';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -457,6 +457,10 @@ function viewSettings(){
     <label class="f"><span>Dal</span><input type="date" id="vf" value="${vacFrom}"></label>
     <label class="f"><span>Al</span><input type="date" id="vt" value="${vacTo}"></label>
     <button data-act="addvac">➕ Aggiungi</button></div></details>
+  <details><summary>ℹ️ Versione e aggiornamenti</summary><div class="sec"><p>Versione installata: <b>v${APP_VERSION}</b></p>
+    <button class="pri" data-act="chk">🔄 Controlla aggiornamenti</button>
+    <button data-act="reload">♻️ Ricarica l’app (forza)</button>
+    <p class="hint">Se c’è una versione più nuova compare in alto una barra blu: toccala per aggiornare. I tuoi turni e le impostazioni restano salvati.</p></div></details>
   <button class="danger" data-act="reset">♻️ Ripristina impostazioni predefinite</button>
   <p class="hint" style="text-align:center">Turni v${APP_VERSION}</p>`;
 }
@@ -699,7 +703,7 @@ function viewHelp(){
   <details><summary>💡 Consigli</summary><div class="sec"><ul>
     <li>Fai ogni tanto un <b>backup .json</b>: se cancelli i dati di Safari o cambi telefono, lo reimporti.</li>
     <li>Se dopo un aggiornamento vedi la versione vecchia: chiudi e riapri l’app, oppure apri il link con <code>?v=</code> e un numero qualsiasi.</li>
-    <li>Il numero di versione è sempre in alto, accanto al titolo.</li></ul></div></details></div>`;
+    <li>Il numero di versione è sempre in alto, accanto al titolo. Per cercare aggiornamenti: Impostazioni › Versione e aggiornamenti › Controlla aggiornamenti (se ce n’è uno, compare una barra blu in alto).</li></ul></div></details></div>`;
 }
 
 /* ---------- RENDER ---------- */
@@ -725,6 +729,8 @@ document.addEventListener('click',ev=>{
   if(t.dataset.tab){tab=t.dataset.tab;render();window.scrollTo(0,0);return;}
   const a=t.dataset.act,di=+t.dataset.di;
   switch(a){
+    case 'chk':checkUpdate(true);break;
+    case 'reload':location.replace(location.pathname+'?v='+APP_VERSION+'&t='+Date.now());break;
     case 'upd':location.replace(location.pathname+'?v='+newV+'&t='+Date.now());break;
     case 'help':tab='help';render();window.scrollTo(0,0);break;
     case 'back':tab='plan';render();window.scrollTo(0,0);break;
@@ -804,12 +810,13 @@ document.addEventListener('change',ev=>{
 if('serviceWorker' in navigator&&false){}
 let newV='';
 const vnum=v=>v.split('.').reduce((a,x)=>a*1000+(+x||0),0);
-async function checkUpdate(){
-  if(location.protocol==='file:')return;
+async function checkUpdate(manual){
+  if(location.protocol==='file:'){if(manual)toast('Controllo disponibile solo dalla versione online');return;}
   try{
     const r=await fetch(location.pathname+'?_='+Date.now(),{cache:'no-store'}),m=(await r.text()).match(/APP_VERSION='([0-9.]+)'/);
-    if(m&&vnum(m[1])>vnum(APP_VERSION)){newV=m[1];const u=$('#upd');u.textContent='🔄 Nuova versione '+m[1]+' disponibile: tocca per aggiornare';u.hidden=false;}
-  }catch(e){}
+    if(m&&vnum(m[1])>vnum(APP_VERSION)){newV=m[1];const u=$('#upd');u.textContent='🔄 Nuova versione '+m[1]+' disponibile: tocca per aggiornare';u.hidden=false;if(manual)toast('Nuova versione '+m[1]+' disponibile: tocca la barra blu in alto');window.scrollTo(0,0);}
+    else if(manual)toast('Sei aggiornato ✅ (v'+APP_VERSION+')');
+  }catch(e){if(manual)toast('Controllo non riuscito: sei offline?');}
 }
 load();applyTheme();$('#ver').textContent='v'+APP_VERSION;render();
 checkUpdate();
