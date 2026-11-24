@@ -9,7 +9,7 @@
 :root{--bg:#f4f6fa;--c:#fff;--t:#1b2230;--m:#6b7587;--b:#dfe4ee;--p:#2563eb;--am:#f59e0b;--pm:#14b8a6;--late:#6366f1;--g:#16a34a;--o:#d97706;--w:#fff4e0}
 @media(prefers-color-scheme:dark){:root{--bg:#10141c;--c:#1a202c;--t:#e8ecf4;--m:#97a1b5;--b:#2b3447;--w:#3a2c10}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:16px/1.4 -apple-system,system-ui,sans-serif;padding-bottom:84px}
-header{padding:calc(14px + env(safe-area-inset-top)) 16px 6px;font-weight:700;font-size:20px}header small{font-weight:400;font-size:12px;color:var(--m);margin-left:6px}.pos{color:var(--p);font-weight:600}#view .sw{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}.swb,.sec button.swb{width:44px;height:44px;margin:0;border-radius:50%;padding:0;border:2px solid var(--b)}.swb.on{border-color:var(--p);border-width:3px}textarea{width:100%;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t)}
+header{padding:calc(14px + env(safe-area-inset-top)) 16px 6px;font-weight:700;font-size:20px}header{display:flex;justify-content:space-between;align-items:center}#helpb{padding:6px 12px;font-size:18px}header small{font-weight:400;font-size:12px;color:var(--m);margin-left:6px}.pos{color:var(--p);font-weight:600}#view .sw{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}.swb,.sec button.swb{width:44px;height:44px;margin:0;border-radius:50%;padding:0;border:2px solid var(--b)}.swb.on{border-color:var(--p);border-width:3px}textarea{width:100%;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t)}
 #view{max-width:560px;margin:0 auto;padding:6px 14px}
 .card{background:var(--c);border:1px solid var(--b);border-radius:14px;overflow:hidden;margin:8px 0}
 .scroll{overflow-x:auto}
@@ -38,7 +38,7 @@ summary{padding:13px 0;font-weight:600;cursor:pointer}.sec{padding-bottom:12px}.
 .chip{background:var(--bg);border:1px solid var(--b);border-radius:20px;padding:4px 10px;font-size:14px}.chip b{cursor:pointer;margin-left:4px}
 table.ov{border-collapse:collapse;width:100%;text-align:center;font-size:13px}
 table.ov th,table.ov td{padding:8px 4px;border-bottom:1px solid var(--b);border-right:1px solid var(--b)}
-table.ov td{cursor:pointer;border-top:3px solid transparent}table.ov td.am{border-top-color:var(--am)}table.ov td.pm{border-top-color:var(--pm)}table.ov td.late{border-top-color:var(--late)}table.ov td.rest{color:var(--m)}
+table.ov td{cursor:pointer}table.ov td.rest{color:var(--m)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}.dot.am{background:var(--am)}.dot.pm{background:var(--pm)}.dot.late{background:var(--late)}.guide h4{margin:10px 0 4px}.guide p,.guide li{font-size:15px;margin:4px 0}.guide ul{padding-left:20px;margin:4px 0}
 .tt{font-weight:700}
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--c);border-top:1px solid var(--b);padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padding:10px 2px}nav button.on{color:var(--p);font-weight:700}
@@ -48,12 +48,12 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 #print{display:none}
 @media print{body>*:not(#print){display:none!important}#print{display:block;color:#000;background:#fff;padding:0}#print h3{margin:18px 0 4px;display:flex;justify-content:space-between}#print table{width:100%;border-collapse:collapse}#print td{border:1px solid #999;padding:5px 8px}#print td:last-child{text-align:right;width:70px}}
 </style></head><body>
-<header>🗓️ Turni <small id="ver"></small></header><div id="view"></div>
+<header><span>🗓️ Turni <small id="ver"></small></span><button id="helpb" data-act="help" aria-label="Guida">❓</button></header><div id="view"></div>
 <nav><button data-tab="plan">📅<br>Piano</button><button data-tab="ov">🗂️<br>Panoramica</button><button data-tab="set">⚙️<br>Impostazioni</button><button data-tab="exp">📤<br>Esporta/Importa</button></nav>
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.4.0';
+const APP_VERSION='1.5.0';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -388,7 +388,7 @@ function viewOverview(){
   let h='<div class="card scroll"><table class="ov"><tr><th></th>'+plan.map((w,i)=>`<th data-act="goto" data-wi="${i}">${ddmm(dayNum(w.start))}</th>`).join('')+'</tr>';
   for(let di=0;di<7;di++){
     h+=`<tr><th>${DAYN[di]}</th>`+plan.map((w,wi)=>{const d=w.days[di];
-      return `<td class="${cls(d)}" data-act="oedit" data-wi="${wi}" data-di="${di}">${d.rest?'Riposo':m2t(d.s)+'<br>'+m2t(d.e)+(d.pos?`<br><small class="pos">${esc(d.pos)}</small>`:'')}${iss[wi].some(x=>x.di===di)?' ⚠️':''}</td>`;}).join('')+'</tr>';
+      return `<td class="${cls(d)}" data-act="oedit" data-wi="${wi}" data-di="${di}">${d.rest?'Riposo':`<i class="dot ${cls(d)}"></i>`+m2t(d.s)+'<br>'+m2t(d.e)+(d.pos?`<br><small class="pos">${esc(d.pos)}</small>`:'')}${iss[wi].some(x=>x.di===di)?' ⚠️':''}</td>`;}).join('')+'</tr>';
   }
   h+='<tr><th>Ore</th>'+plan.map((w,wi)=>{const t=weekTotal(w),T=w.target==null?S.targetMin:w.target;
     return `<td class="tt ${Math.abs(t-T)<=S.tolMin?'g':'o'}">${dur(t)}</td>`;}).join('')+'</tr></table></div>';
@@ -655,10 +655,51 @@ function importFile(f){
   }else{rd.onload=()=>importString(rd.result,ext);rd.readAsText(f);}
 }
 
+
+/* ---------- GUIDA ---------- */
+function viewHelp(){
+  return `<div class="card guide" style="padding:6px 14px 14px">
+  <div class="btns"><button class="pri" data-act="back">← Torna all’app</button></div>
+  <h3>Guida all’uso · v${APP_VERSION}</h3>
+  <p>App per creare e gestire il piano dei turni, una persona, settimane da lunedì a domenica. Tutto si salva nel telefono.</p>
+  <details open><summary>🚀 Per iniziare</summary><div class="sec"><ul>
+    <li><b>Generare in automatico:</b> Impostazioni › imposta ore e regole › <b>Applica e genera il piano</b>.</li>
+    <li><b>Inserire a mano:</b> Panoramica › <b>Svuota tutto il piano</b> › tocca le caselle e compila (con “Salva e avanti”).</li>
+    <li><b>Partire dai turni già esistenti:</b> Esporta/Importa › incolla il testo o importa un file.</li></ul></div></details>
+  <details><summary>📅 Piano</summary><div class="sec"><ul>
+    <li>Una settimana alla volta; ‹ › per cambiare. Tocca un giorno per modificarlo (riposo, orario, posizione, nota).</li>
+    <li>Barra colorata: arancione = mattina, verde = pomeriggio, viola = chiusura.</li>
+    <li>⚠️ = una regola non è rispettata (ore, riposo tra turni, giorni di fila…): sotto la tabella trovi il motivo.</li>
+    <li><b>Rigenera settimana</b> / <b>Rigenera tutto</b>: ricalcolano i turni (chiedono conferma, disattivabile in Impostazioni › Conferme).</li>
+    <li>Sotto puoi cambiare, solo per quella settimana, le ore obiettivo e i giorni lavorati.</li></ul></div></details>
+  <details><summary>🗂️ Panoramica</summary><div class="sec"><ul>
+    <li>Tabella giorni × settimane con il totale ore. Tocca una casella per inserire o modificare il turno.</li>
+    <li><b>Salva e avanti ▶</b> passa al giorno successivo (e alla settimana dopo) per compilare di seguito.</li>
+    <li>Tocca la data in alto per aprire quella settimana. Il pallino indica la fascia.</li>
+    <li>Aggiungi settimana, elimina l’ultima o svuota tutto con i pulsanti sotto.</li></ul></div></details>
+  <details><summary>⚙️ Impostazioni</summary><div class="sec"><ul>
+    <li><b>Periodo:</b> primo lunedì e numero di settimane.</li>
+    <li><b>Ore e regole:</b> ore settimanali, tolleranza, giorni lavorati min/max, giorni di fila, riposo minimo tra turni, passo minuti, preferenza sui riposi (indifferente, consecutivi, separati).</li>
+    <li><b>Posizioni:</b> l’elenco del menu a tendina (una per riga) e il codice stampato nel PDF.</li>
+    <li><b>Fasce orarie:</b> mattina, pomeriggio, chiusura (modificabili, ne puoi aggiungere).</li>
+    <li><b>Regole per giorno:</b> disponibilità, durata min/max del turno, orari consentiti, tendenza ore, fasce permesse.</li>
+    <li><b>Ferie / indisponibilità:</b> giorni in cui non si lavora.</li>
+    <li><b>Aspetto:</b> colore di sfondo. <b>Conferme:</b> chiedere o no prima di rigenerare.</li>
+    <li>Le modifiche si salvano subito, ma per ricalcolare i turni premi <b>Applica e genera il piano</b>.</li></ul></div></details>
+  <details><summary>📤 Esporta / Importa</summary><div class="sec"><ul>
+    <li><b>PDF</b> su due fogli: formato del foglio turni + tabella riepilogo.</li>
+    <li>Testo da copiare/condividere, CSV (Excel), calendario .ics, stampa, backup .json.</li>
+    <li><b>Importa</b> file .json, .csv, .ics, .txt e PDF creati dall’app. Per un PDF-foto: copia il testo dalla foto (iPhone: tieni premuto sul testo › Copia) e incollalo nella casella.</li></ul></div></details>
+  <details><summary>💡 Consigli</summary><div class="sec"><ul>
+    <li>Fai ogni tanto un <b>backup .json</b>: se cancelli i dati di Safari o cambi telefono, lo reimporti.</li>
+    <li>Se dopo un aggiornamento vedi la versione vecchia: chiudi e riapri l’app, oppure apri il link con <code>?v=</code> e un numero qualsiasi.</li>
+    <li>Il numero di versione è sempre in alto, accanto al titolo.</li></ul></div></details></div>`;
+}
+
 /* ---------- RENDER ---------- */
 function render(){
   const keep=tab==='set'?[...document.querySelectorAll('#view details')].map(d=>d.open):null,ys=window.scrollY;
-  $('#view').innerHTML=tab==='plan'?viewPlan():tab==='ov'?viewOverview():tab==='set'?viewSettings():viewExport();
+  $('#view').innerHTML=tab==='plan'?viewPlan():tab==='ov'?viewOverview():tab==='set'?viewSettings():tab==='help'?viewHelp():viewExport();
   if(keep&&tab==='set'){document.querySelectorAll('#view details').forEach((d,i)=>{if(keep[i]!==undefined)d.open=keep[i];});window.scrollTo(0,ys);}
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
   renderPrint();save();
@@ -678,6 +719,8 @@ document.addEventListener('click',ev=>{
   if(t.dataset.tab){tab=t.dataset.tab;render();window.scrollTo(0,0);return;}
   const a=t.dataset.act,di=+t.dataset.di;
   switch(a){
+    case 'help':tab='help';render();window.scrollTo(0,0);break;
+    case 'back':tab='plan';render();window.scrollTo(0,0);break;
     case 'prev':cur=Math.max(0,cur-1);render();break;
     case 'next':cur=Math.min(plan.length-1,cur+1);render();break;
     case 'goto':cur=+t.dataset.wi;tab='plan';render();break;
