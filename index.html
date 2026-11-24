@@ -9,7 +9,7 @@
 :root{--bg:#f4f6fa;--c:#fff;--t:#1b2230;--m:#6b7587;--b:#dfe4ee;--p:#2563eb;--am:#f59e0b;--pm:#14b8a6;--late:#6366f1;--g:#16a34a;--o:#d97706;--w:#fff4e0}
 @media(prefers-color-scheme:dark){:root{--bg:#10141c;--c:#1a202c;--t:#e8ecf4;--m:#97a1b5;--b:#2b3447;--w:#3a2c10}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:16px/1.4 -apple-system,system-ui,sans-serif;padding-bottom:84px}
-header{padding:calc(14px + env(safe-area-inset-top)) 16px 6px;font-weight:700;font-size:20px}header{display:flex;justify-content:space-between;align-items:center}#helpb{padding:6px 12px;font-size:18px}header small{font-weight:400;font-size:12px;color:var(--m);margin-left:6px}.pos{color:var(--p);font-weight:600}#view .sw{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}.swb,.sec button.swb{width:44px;height:44px;margin:0;border-radius:50%;padding:0;border:2px solid var(--b)}.swb.on{border-color:var(--p);border-width:3px}textarea{width:100%;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t)}
+header{padding:calc(14px + env(safe-area-inset-top)) 16px 6px;font-weight:700;font-size:20px}header{display:flex;justify-content:space-between;align-items:center}#upd{margin:4px 14px;padding:10px 14px;background:var(--p);color:#fff;border-radius:12px;font-weight:600;text-align:center;cursor:pointer;max-width:532px}#upd[hidden]{display:none}#helpb{padding:6px 12px;font-size:18px}header small{font-weight:400;font-size:12px;color:var(--m);margin-left:6px}.pos{color:var(--p);font-weight:600}#view .sw{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}.swb,.sec button.swb{width:44px;height:44px;margin:0;border-radius:50%;padding:0;border:2px solid var(--b)}.swb.on{border-color:var(--p);border-width:3px}textarea{width:100%;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t)}
 #view{max-width:560px;margin:0 auto;padding:6px 14px}
 .card{background:var(--c);border:1px solid var(--b);border-radius:14px;overflow:hidden;margin:8px 0}
 .scroll{overflow-x:auto}
@@ -48,12 +48,12 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 #print{display:none}
 @media print{body>*:not(#print){display:none!important}#print{display:block;color:#000;background:#fff;padding:0}#print h3{margin:18px 0 4px;display:flex;justify-content:space-between}#print table{width:100%;border-collapse:collapse}#print td{border:1px solid #999;padding:5px 8px}#print td:last-child{text-align:right;width:70px}}
 </style></head><body>
-<header><span>🗓️ Turni <small id="ver"></small></span><button id="helpb" data-act="help" aria-label="Guida">❓</button></header><div id="view"></div>
+<header><span>🗓️ Turni <small id="ver"></small></span><button id="helpb" data-act="help" aria-label="Guida">❓</button></header><div id="upd" data-act="upd" hidden></div><div id="view"></div>
 <nav><button data-tab="plan">📅<br>Piano</button><button data-tab="ov">🗂️<br>Panoramica</button><button data-tab="set">⚙️<br>Impostazioni</button><button data-tab="exp">📤<br>Esporta/Importa</button></nav>
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.5.2';
+const APP_VERSION='1.5.3';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -720,6 +720,7 @@ document.addEventListener('click',ev=>{
   if(t.dataset.tab){tab=t.dataset.tab;render();window.scrollTo(0,0);return;}
   const a=t.dataset.act,di=+t.dataset.di;
   switch(a){
+    case 'upd':location.replace(location.pathname+'?v='+newV+'&t='+Date.now());break;
     case 'help':tab='help';render();window.scrollTo(0,0);break;
     case 'back':tab='plan';render();window.scrollTo(0,0);break;
     case 'prev':cur=Math.max(0,cur-1);render();break;
@@ -785,6 +786,16 @@ document.addEventListener('change',ev=>{
   if(p.endsWith('.mode')||/^fasce\.\d+\.name$/.test(p))render();
 });
 if('serviceWorker' in navigator&&false){}
+let newV='';
+const vnum=v=>v.split('.').reduce((a,x)=>a*1000+(+x||0),0);
+async function checkUpdate(){
+  if(location.protocol==='file:')return;
+  try{
+    const r=await fetch(location.pathname+'?_='+Date.now(),{cache:'no-store'}),m=(await r.text()).match(/APP_VERSION='([0-9.]+)'/);
+    if(m&&vnum(m[1])>vnum(APP_VERSION)){newV=m[1];const u=$('#upd');u.textContent='🔄 Nuova versione '+m[1]+' disponibile: tocca per aggiornare';u.hidden=false;}
+  }catch(e){}
+}
 load();applyTheme();$('#ver').textContent='v'+APP_VERSION;render();
+checkUpdate();
 
 </script></body></html>
