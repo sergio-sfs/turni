@@ -53,7 +53,7 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.7.0';
+const APP_VERSION='1.7.1';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -681,7 +681,7 @@ function importFile(f){
 
 /* ---------- STORICO ---------- */
 function viewHist(){
-  const inPlan=new Set(plan.map(w=>w.start)),keys=Object.keys(archive).sort().reverse();
+  const inPlan=new Set(plan.filter(w=>w.days.some(d=>!d.rest)).map(w=>w.start)),keys=Object.keys(archive).sort().reverse();
   const items=keys.map(k=>{
     const w=archive[k],b=dayNum(k),ip=inPlan.has(k),t=weekTotal(w);
     const rows=w.days.map((d,di)=>`<div class="row ${cls(d)}" style="cursor:default"><div class="dn">${DAYN[di]} <small>${ddmm(b+di)}</small></div><div class="tm">${d.rest?'Riposo':m2t(d.s)+' – '+m2t(d.e)}${d.pos?`<br><small class="pos">${esc(d.pos)}</small>`:''}${d.note?` <em>${esc(d.note)}</em>`:''}</div><div class="hh">${d.rest?'0:00':dur(d.e-d.s)}</div></div>`).join('');
@@ -761,10 +761,10 @@ document.addEventListener('click',ev=>{
     case 'hist':tab='hist';render();window.scrollTo(0,0);break;
     case 'ovback':tab='ov';render();window.scrollTo(0,0);break;
     case 'hrestore':{const k=t.dataset.k,w=JSON.parse(JSON.stringify(archive[k])),i=plan.findIndex(x=>x.start===k);
-      if(i>=0)cur=i;else{plan.push(w);plan.sort((a,b)=>a.start<b.start?-1:1);cur=plan.findIndex(x=>x.start===k);}
+      if(i>=0){if(!plan[i].days.some(d=>!d.rest))plan[i]=w;cur=i;}else{plan.push(w);plan.sort((a,b)=>a.start<b.start?-1:1);cur=plan.findIndex(x=>x.start===k);}
       S.weeks=plan.length;S.startDate=plan[0].start;tab='plan';render();toast('Settimana nel piano ✅');break;}
     case 'hdel':if(confirm('Eliminare questa settimana dallo storico?')){delete archive[t.dataset.k];render();}break;
-    case 'hclear':if(confirm('Eliminare dallo storico tutte le settimane fuori dal piano attuale?')){const s=new Set(plan.map(w=>w.start));Object.keys(archive).forEach(k=>{if(!s.has(k))delete archive[k];});render();}break;
+    case 'hclear':if(confirm('Eliminare dallo storico tutte le settimane fuori dal piano attuale?')){const s=new Set(plan.filter(w=>w.days.some(d=>!d.rest)).map(w=>w.start));Object.keys(archive).forEach(k=>{if(!s.has(k))delete archive[k];});render();}break;
     case 'chk':checkUpdate(true);break;
     case 'reload':location.replace(location.pathname+'?v='+APP_VERSION+'&t='+Date.now());break;
     case 'upd':location.replace(location.pathname+'?v='+newV+'&t='+Date.now());break;
