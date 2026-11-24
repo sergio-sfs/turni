@@ -43,7 +43,7 @@ table.ov td{cursor:pointer;border-top:3px solid transparent}table.ov td.am{borde
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--c);border-top:1px solid var(--b);padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padding:10px 2px}nav button.on{color:var(--p);font-weight:700}
 #sheet{display:none;position:fixed;inset:0;background:#0007;align-items:flex-end;justify-content:center;z-index:5}#sheet.on{display:flex}
-#sheet .box{background:var(--c);width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}#sheet h3{margin:0 0 6px}
+#sheet .box{background:var(--c);width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}#sheet h3{margin:0 0 6px}#sheet h3 small{font-weight:400;color:var(--m);font-size:13px}table.ov .pos{font-size:11px;font-weight:600}
 #toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;max-width:90%;text-align:center;z-index:9}#toast.on{opacity:1}
 #print{display:none}
 @media print{body>*:not(#print){display:none!important}#print{display:block;color:#000;background:#fff;padding:0}#print h3{margin:18px 0 4px;display:flex;justify-content:space-between}#print table{width:100%;border-collapse:collapse}#print td{border:1px solid #999;padding:5px 8px}#print td:last-child{text-align:right;width:70px}}
@@ -53,7 +53,7 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.3.1';
+const APP_VERSION='1.4.0';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -388,11 +388,13 @@ function viewOverview(){
   let h='<div class="card scroll"><table class="ov"><tr><th></th>'+plan.map((w,i)=>`<th data-act="goto" data-wi="${i}">${ddmm(dayNum(w.start))}</th>`).join('')+'</tr>';
   for(let di=0;di<7;di++){
     h+=`<tr><th>${DAYN[di]}</th>`+plan.map((w,wi)=>{const d=w.days[di];
-      return `<td class="${cls(d)}" data-act="goto" data-wi="${wi}">${d.rest?'Riposo':m2t(d.s)+'<br>'+m2t(d.e)}${iss[wi].some(x=>x.di===di)?' ⚠️':''}</td>`;}).join('')+'</tr>';
+      return `<td class="${cls(d)}" data-act="oedit" data-wi="${wi}" data-di="${di}">${d.rest?'Riposo':m2t(d.s)+'<br>'+m2t(d.e)+(d.pos?`<br><small class="pos">${esc(d.pos)}</small>`:'')}${iss[wi].some(x=>x.di===di)?' ⚠️':''}</td>`;}).join('')+'</tr>';
   }
   h+='<tr><th>Ore</th>'+plan.map((w,wi)=>{const t=weekTotal(w),T=w.target==null?S.targetMin:w.target;
     return `<td class="tt ${Math.abs(t-T)<=S.tolMin?'g':'o'}">${dur(t)}</td>`;}).join('')+'</tr></table></div>';
-  return h+'<p class="hint">Tocca una colonna per aprire la settimana.</p>';
+  return h+`<p class="hint">Tocca una casella per inserire o modificare il turno (con “Salva e avanti” compili tutto di seguito). Tocca la data in alto per aprire la settimana.</p>
+  <div class="btns"><button data-act="addweek">➕ Aggiungi settimana</button><button data-act="delweek">➖ Elimina ultima</button></div>
+  <div class="btns"><button data-act="clearall">🧹 Svuota tutto il piano</button></div>`;
 }
 
 /* ---------- IMPOSTAZIONI ---------- */
@@ -597,16 +599,18 @@ async function exportPDF(){
 }
 
 /* ---------- EDIT ---------- */
-function openEdit(di){
-  const w=plan[cur],d=w.days[di],base=dayNum(w.start);
+function openEdit(di,wi){
+  if(wi==null)wi=cur;
+  const w=plan[wi],d=w.days[di],base=dayNum(w.start);
   const s=d.rest?(S.days[di].from+30):d.s,e=d.rest?s+240:d.e;
-  $('#sheet').innerHTML=`<div class="box"><h3>${DAYF[di]} ${ddmm(base+di)}</h3>
+  $('#sheet').innerHTML=`<div class="box"><h3>${DAYF[di]} ${ddmm(base+di)} <small>settimana ${wi+1}</small></h3>
   <label class="f chk"><span>Riposo</span><input type="checkbox" id="e_r" ${d.rest?'checked':''}></label>
   <label class="f"><span>Inizio</span><input type="time" id="e_s" step="${S.step*60}" value="${m2t(s)}"></label>
   <label class="f"><span>Fine</span><input type="time" id="e_e" step="${S.step*60}" value="${m2t(e)}"></label>
   <label class="f"><span>Posizione</span><select id="e_p"><option value="">—</option>${(S.positions.includes(d.pos)||!d.pos?S.positions:S.positions.concat([d.pos])).map(p=>`<option ${p===d.pos?'selected':''}>${esc(p)}</option>`).join('')}</select></label>
   <label class="f"><span>Nota</span><input type="text" id="e_n" value="${esc(d.note)}"></label>
-  <div class="btns"><button class="pri" data-act="saveedit" data-di="${di}">Salva</button><button data-act="closeedit">Annulla</button></div></div>`;
+  <div class="btns"><button class="pri" data-act="saveedit" data-di="${di}" data-wi="${wi}">Salva</button><button class="pri" data-act="saveedit" data-di="${di}" data-wi="${wi}" data-next="1">Salva e avanti ▶</button></div>
+  <div class="btns"><button data-act="closeedit">Annulla</button></div></div>`;
   $('#sheet').classList.add('on');
 }
 
@@ -680,11 +684,17 @@ document.addEventListener('click',ev=>{
     case 'edit':openEdit(di);break;
     case 'closeedit':$('#sheet').classList.remove('on');break;
     case 'saveedit':{
-      const d=plan[cur].days[di];d.note=$('#e_n').value.trim();d.pos=$('#e_p').value;
+      const wi=+t.dataset.wi,d=plan[wi].days[di];d.note=$('#e_n').value.trim();d.pos=$('#e_p').value;
       if($('#e_r').checked){d.rest=true;d.s=d.e=null;d.pos='';}
       else{const s=t2m($('#e_s').value),e=t2m($('#e_e').value);
         if(e<=s){toast('La fine deve essere dopo l’inizio');return;}d.rest=false;d.s=s;d.e=e;}
-      $('#sheet').classList.remove('on');render();break;}
+      $('#sheet').classList.remove('on');render();
+      if(t.dataset.next){let nd=di+1,nw=wi;if(nd>6){nd=0;nw++;}if(nw<plan.length)openEdit(nd,nw);}
+      break;}
+    case 'oedit':cur=+t.dataset.wi;openEdit(di,cur);break;
+    case 'addweek':{const l=plan[plan.length-1];plan.push({start:iso(dayNum(l.start)+7),target:null,wd:null,days:restDays()});S.weeks=plan.length;render();break;}
+    case 'delweek':if(plan.length>1&&confirm('Eliminare l’ultima settimana?')){plan.pop();S.weeks=plan.length;cur=Math.min(cur,plan.length-1);render();}break;
+    case 'clearall':if(confirm('Svuotare tutto il piano (tutti i giorni a riposo)?')){plan.forEach(w=>{w.days=restDays();});render();}break;
     case 'regen':
       if(!askRegen('Rigenerare questa settimana? I turni attuali verranno sostituiti.'))break;
       if(genWeek(S,plan,cur)){toast('Settimana rigenerata ✅');}else toast('Impossibile: '+diagnose(S,plan,cur));
