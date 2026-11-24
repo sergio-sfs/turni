@@ -38,7 +38,7 @@ summary{padding:13px 0;font-weight:600;cursor:pointer}.sec{padding-bottom:12px}.
 .chip{background:var(--bg);border:1px solid var(--b);border-radius:20px;padding:4px 10px;font-size:14px}.chip b{cursor:pointer;margin-left:4px}
 table.ov{border-collapse:collapse;width:100%;text-align:center;font-size:13px}
 table.ov th,table.ov td{padding:8px 4px;border-bottom:1px solid var(--b);border-right:1px solid var(--b)}
-table.ov td{cursor:pointer;background-repeat:no-repeat;background-size:100% 4px;background-position:top}table.ov td.am{background-image:linear-gradient(var(--am),var(--am))}table.ov td.pm{background-image:linear-gradient(var(--pm),var(--pm))}table.ov td.late{background-image:linear-gradient(var(--late),var(--late))}table.ov td.rest{color:var(--m)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}.dot.am{background:var(--am)}.dot.pm{background:var(--pm)}.dot.late{background:var(--late)}.guide h4{margin:10px 0 4px}.guide p,.guide li{font-size:15px;margin:4px 0}.guide ul{padding-left:20px;margin:4px 0}
+table.ov td{cursor:pointer;background-repeat:no-repeat;background-size:100% 4px;background-position:top}table.ov td.am{background-image:linear-gradient(var(--am),var(--am))}table.ov td.pm{background-image:linear-gradient(var(--pm),var(--pm))}table.ov td.late{background-image:linear-gradient(var(--late),var(--late))}table.ov td.rest{color:var(--m)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}.dot.am{background:var(--am)}.dot.pm{background:var(--pm)}.dot.late{background:var(--late)}.f2{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b)}.f2 span{flex:1}.f2 small{color:var(--m)}.f2 input{width:62px;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t);text-align:center}.guide h4{margin:10px 0 4px}.guide p,.guide li{font-size:15px;margin:4px 0}.guide ul{padding-left:20px;margin:4px 0}
 .tt{font-weight:700}
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--c);border-top:1px solid var(--b);padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padding:10px 2px}nav button.on{color:var(--p);font-weight:700}
@@ -53,7 +53,7 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.5.4';
+const APP_VERSION='1.5.5';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -81,6 +81,10 @@ function defaultSettings(today){
     days:DAYN.map(()=>({avail:'on',durMin:240,durMax:300,from:450,to:1275,tend:1,fasce:{}})),
     vacations:[]
   };
+}
+function wRange(S,w){
+  let a=w.wd!=null?w.wd:(w.wmin!=null?w.wmin:S.minWD),b=w.wd!=null?w.wd:(w.wmax!=null?w.wmax:S.maxWD);
+  if(b<a)b=a;return [a,b];
 }
 const restDays=()=>Array.from({length:7},()=>({rest:true,s:null,e:null,note:'',pos:''}));
 function newPlan(S){
@@ -114,7 +118,7 @@ function validate(plan,S){
     });
     const T=w.target==null?S.targetMin:w.target;
     if(Math.abs(tot-T)>S.tolMin)add(wi,null,'Ore '+dur(tot)+' invece di '+dur(T));
-    const wmin=w.wd==null?S.minWD:w.wd,wmax=w.wd==null?S.maxWD:w.wd;
+    const [wmin,wmax]=wRange(S,w);
     if(n<wmin)add(wi,null,'Solo '+n+' giorni lavorati (min '+wmin+')');
     if(n>wmax)add(wi,null,n+' giorni lavorati (max '+wmax+')');
   });
@@ -157,7 +161,7 @@ function setup(S,plan,wi){
 }
 function tryWeek(S,plan,wi,strict){
   const {w,base,st,T,cfg,cand}=setup(S,plan,wi);
-  const wmin=w.wd==null?S.minWD:w.wd,wmax=w.wd==null?S.maxWD:w.wd;
+  const [wmin,wmax]=wRange(S,w);
   const lo=Math.min(wmin,cand.length),hi=Math.max(lo,Math.min(wmax,cand.length));
   const n=lo+rnd(hi-lo+1);
   const pool=cand.slice(),ch=[];
@@ -380,8 +384,9 @@ function viewPlan(){
   <button data-act="regenall">🎲 Rigenera tutto</button></div>
   <label class="f"><span>Obiettivo ore di questa settimana</span>
   <input type="number" step="0.25" min="0" placeholder="${(S.targetMin/60)}" value="${w.target==null?'':w.target/60}" data-wt="1"></label>
-  <label class="f"><span>Giorni lavorati di questa settimana</span>
-  <input type="number" min="1" max="7" placeholder="${S.minWD}-${S.maxWD}" value="${w.wd==null?'':w.wd}" data-wd="1"></label>`;
+  <div class="f2"><span>Giorni lavorati di questa settimana<br><small>da – a · vuoto = valori delle Impostazioni (${S.minWD}–${S.maxWD}). Per un numero fisso metti lo stesso in entrambi.</small></span>
+  <input type="number" min="1" max="7" placeholder="${S.minWD}" value="${w.wd!=null?w.wd:(w.wmin==null?'':w.wmin)}" data-wmin="1">
+  <input type="number" min="1" max="7" placeholder="${S.maxWD}" value="${w.wd!=null?w.wd:(w.wmax==null?'':w.wmax)}" data-wmax="1"></div>`;
 }
 function viewOverview(){
   const iss=validate(plan,S);
@@ -672,7 +677,7 @@ function viewHelp(){
     <li>Barra colorata: arancione = mattina, verde = pomeriggio, viola = chiusura.</li>
     <li>⚠️ = una regola non è rispettata (ore, riposo tra turni, giorni di fila…): sotto la tabella trovi il motivo.</li>
     <li><b>Rigenera settimana</b> / <b>Rigenera tutto</b>: ricalcolano i turni (chiedono conferma, disattivabile in Impostazioni › Conferme).</li>
-    <li>Sotto puoi cambiare, solo per quella settimana, le ore obiettivo e i giorni lavorati.</li></ul></div></details>
+    <li>Sotto puoi cambiare, solo per quella settimana, le ore obiettivo e i giorni lavorati (da – a: per esempio 5–6, oppure 5–5 per averne esattamente 5).</li></ul></div></details>
   <details><summary>🗂️ Panoramica</summary><div class="sec"><ul>
     <li>Tabella giorni × settimane con il totale ore. Tocca una casella per inserire o modificare il turno.</li>
     <li><b>Salva e avanti ▶</b> passa al giorno successivo (e alla settimana dopo) per compilare di seguito.</li>
@@ -774,7 +779,13 @@ document.addEventListener('input',ev=>{
 document.addEventListener('change',ev=>{
   const el=ev.target;
   if(el.id==='imp'){const f=el.files[0];if(f)importFile(f);el.value='';return;}
-  if(el.dataset.wd){const v=el.value;plan[cur].wd=v===''?null:Math.max(1,Math.min(7,parseInt(v,10)||1));render();return;}
+  if(el.dataset.wmin||el.dataset.wmax){
+    const w=plan[cur],isMin=!!el.dataset.wmin,v=el.value===''?null:Math.max(1,Math.min(7,parseInt(el.value,10)||1));
+    if(w.wd!=null){w.wmin=w.wmax=w.wd;w.wd=null;}
+    if(isMin)w.wmin=v;else w.wmax=v;
+    if(w.wmin!=null&&w.wmax!=null&&w.wmax<w.wmin){if(isMin)w.wmax=w.wmin;else w.wmin=w.wmax;}
+    render();return;
+  }
   if(el.id==='bgc'){S.bg=el.value;applyTheme();save();return;}
   if(el.dataset.wt){const v=el.value;plan[cur].target=v===''?null:Math.round(parseFloat(v)*60);render();return;}
   if(el.id==='vf'){vacFrom=el.value;return;}if(el.id==='vt'){vacTo=el.value;return;}
