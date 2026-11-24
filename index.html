@@ -53,7 +53,7 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.5.1';
+const APP_VERSION='1.5.2';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -392,7 +392,7 @@ function viewOverview(){
   }
   h+='<tr><th>Ore</th>'+plan.map((w,wi)=>{const t=weekTotal(w),T=w.target==null?S.targetMin:w.target;
     return `<td class="tt ${Math.abs(t-T)<=S.tolMin?'g':'o'}">${dur(t)}</td>`;}).join('')+'</tr></table></div>';
-  return h+`<p class="hint">Tocca una casella per inserire o modificare il turno (con “Salva e avanti” compili tutto di seguito). Tocca la data in alto per aprire la settimana.</p>
+  return h+`<div class="legend"><span class="am">Mattina</span><span class="pm">Pomeriggio</span><span class="late">Chiusura</span></div><p class="hint">Tocca una casella per inserire o modificare il turno (con “Salva e avanti” compili tutto di seguito). Tocca la data in alto per aprire la settimana.</p>
   <div class="btns"><button data-act="addweek">➕ Aggiungi settimana</button><button data-act="delweek">➖ Elimina ultima</button></div>
   <div class="btns"><button data-act="clearall">🧹 Svuota tutto il piano</button></div>`;
 }
@@ -544,7 +544,8 @@ function makePDF(){
   /* Foglio 2: tabella riepilogo */
   newPage();
   txt(M,y+14,18,'Panoramica turni',true);y+=30;
-  txt(M,y,9,'Turni v'+APP_VERSION,false,GR);y+=18;
+  txt(M,y,9,'Turni v'+APP_VERSION,false,GR);
+  [['am','Mattina'],['pm','Pomeriggio'],['late','Chiusura']].forEach((x,i)=>{rect(M+130+i*90,y-8,9,9,COL[x[0]]);txt(M+143+i*90,y,9,x[1],false,GR);});y+=18;
   const K=6;
   for(let c0=0;c0<plan.length;c0+=K){
     const ws=plan.slice(c0,c0+K),cw=Math.min(110,(W-2*M-36)/ws.length),tw=36+cw*ws.length,RH2=34;
