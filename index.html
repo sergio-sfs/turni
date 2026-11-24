@@ -11,6 +11,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:16px/1.4 -apple-system,system-ui,sans-serif;padding-bottom:84px}
 header{padding:calc(14px + env(safe-area-inset-top)) 16px 6px;font-weight:700;font-size:20px}header{display:flex;justify-content:space-between;align-items:center}#upd{margin:4px 14px;padding:10px 14px;background:var(--p);color:#fff;border-radius:12px;font-weight:600;text-align:center;cursor:pointer;max-width:532px}#upd[hidden]{display:none}#helpb{padding:6px 12px;font-size:18px}header small{font-weight:400;font-size:12px;color:var(--m);margin-left:6px}.pos{color:var(--p);font-weight:600}#view .sw{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}.swb,.sec button.swb{width:44px;height:44px;margin:0;border-radius:50%;padding:0;border:2px solid var(--b)}.swb.on{border-color:var(--p);border-width:3px}textarea{width:100%;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t)}
 #view{max-width:560px;margin:0 auto;padding:6px 14px}
+@media(min-width:700px){body{zoom:1.2}#view{max-width:720px}#sheet .box{max-width:720px}}@media(min-width:1000px){body{zoom:1.4}#view{max-width:760px}}
 .card{background:var(--c);border:1px solid var(--b);border-radius:14px;overflow:hidden;margin:8px 0}
 .scroll{overflow-x:auto}
 .ch{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--b);gap:8px;flex-wrap:wrap}
@@ -53,7 +54,7 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.9.1';
+const APP_VERSION='1.9.2';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
