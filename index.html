@@ -41,7 +41,7 @@ table.ov th,table.ov td{padding:8px 4px;border-bottom:1px solid var(--b);border-
 table.ov td{cursor:pointer;border-top:3px solid transparent}table.ov td.am{border-top-color:var(--am)}table.ov td.pm{border-top-color:var(--pm)}table.ov td.late{border-top-color:var(--late)}table.ov td.rest{color:var(--m)}
 .tt{font-weight:700}
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--c);border-top:1px solid var(--b);padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;border:0;border-radius:0;background:none;font-size:12px;padding:10px 2px}nav button.on{color:var(--p);font-weight:700}
+nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padding:10px 2px}nav button.on{color:var(--p);font-weight:700}
 #sheet{display:none;position:fixed;inset:0;background:#0007;align-items:flex-end;justify-content:center;z-index:5}#sheet.on{display:flex}
 #sheet .box{background:var(--c);width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}#sheet h3{margin:0 0 6px}
 #toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;max-width:90%;text-align:center;z-index:9}#toast.on{opacity:1}
@@ -49,11 +49,11 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:12px;paddin
 @media print{body>*:not(#print){display:none!important}#print{display:block;color:#000;background:#fff;padding:0}#print h3{margin:18px 0 4px;display:flex;justify-content:space-between}#print table{width:100%;border-collapse:collapse}#print td{border:1px solid #999;padding:5px 8px}#print td:last-child{text-align:right;width:70px}}
 </style></head><body>
 <header>🗓️ Turni <small id="ver"></small></header><div id="view"></div>
-<nav><button data-tab="plan">📅<br>Piano</button><button data-tab="ov">🗂️<br>Panoramica</button><button data-tab="set">⚙️<br>Impostazioni</button><button data-tab="exp">📤<br>Esporta</button></nav>
+<nav><button data-tab="plan">📅<br>Piano</button><button data-tab="ov">🗂️<br>Panoramica</button><button data-tab="set">⚙️<br>Impostazioni</button><button data-tab="exp">📤<br>Esporta/Importa</button></nav>
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.3.0';
+const APP_VERSION='1.3.1';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -71,7 +71,7 @@ function defaultSettings(today){
   return {
     startDate:iso(mondayOf(dayNum(today))), weeks:4,
     targetMin:1380, tolMin:0,
-    minWD:5, maxWD:6, maxConsec:6, restH:11, step:15, restPref:'none', code:'190', bg:'',
+    minWD:5, maxWD:6, maxConsec:6, restH:11, step:15, restPref:'none', code:'190', bg:'', confirmRegen:true,
     positions:['Isola 2','Fastlane 2','Bazar 3 NP','Cassa Esterna','Retrocassa NP1','x-lavagna ASZ'],
     fasce:[
       {id:'M',name:'Mattina',mode:'start',from:450,to:570},
@@ -427,6 +427,8 @@ function viewSettings(){
   const vac=S.vacations.length?`<div class="chips">${S.vacations.map((d,i)=>`<span class="chip">${ddmm(dayNum(d))} <b data-act="delvac" data-i="${i}">✕</b></span>`).join('')}</div>`:'<p class="hint">Nessun giorno impostato.</p>';
   return `<div class="btns"><button class="pri" data-act="apply">✅ Applica e genera il piano</button></div>
   <p class="hint">Le modifiche si salvano subito; per ricalcolare i turni usa il pulsante qui sopra.</p>
+  <details><summary>🔔 Conferme</summary><div class="sec">${F('Chiedi conferma prima di rigenerare i turni','confirmRegen','check')}
+    <p class="hint">Vale per “Rigenera settimana”, “Rigenera tutto” e “Applica e genera il piano”. Disattivala per rigenerare senza conferma.</p></div></details>
   <details><summary>🎨 Aspetto</summary><div class="sec"><p class="hint">Colore di sfondo dell'app</p>
     <div class="sw">${SWATCH.map(c=>`<button class="swb ${(S.bg||'')===c?'on':''}" style="background:${c||'#f4f6fa'}" data-act="bg" data-c="${c}">${c?'':'↺'}</button>`).join('')}</div>
     <label class="f"><span>Colore personalizzato</span><input type="color" id="bgc" value="${S.bg||'#f4f6fa'}"></label></div></details>
@@ -657,7 +659,9 @@ function render(){
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
   renderPrint();save();
 }
+const askRegen=m=>!S.confirmRegen||confirm(m);
 function apply(){
+  if(!askRegen('Generare di nuovo il piano con le impostazioni attuali? I turni attuali verranno sostituiti.'))return;
   S.startDate=iso(mondayOf(dayNum(S.startDate)));
   if(S.maxWD<S.minWD)S.maxWD=S.minWD;
   plan=newPlan(S);cur=0;const f=genAll(S,plan);
@@ -682,9 +686,10 @@ document.addEventListener('click',ev=>{
         if(e<=s){toast('La fine deve essere dopo l’inizio');return;}d.rest=false;d.s=s;d.e=e;}
       $('#sheet').classList.remove('on');render();break;}
     case 'regen':
+      if(!askRegen('Rigenerare questa settimana? I turni attuali verranno sostituiti.'))break;
       if(genWeek(S,plan,cur)){toast('Settimana rigenerata ✅');}else toast('Impossibile: '+diagnose(S,plan,cur));
       render();break;
-    case 'regenall':{const f=genAll(S,plan);render();toast(f.length?'Alcune settimane non generabili: allenta le regole':'Piano rigenerato ✅');break;}
+    case 'regenall':{if(!askRegen('Rigenerare tutto il piano? Tutti i turni attuali (anche le modifiche manuali) verranno sostituiti.'))break;const f=genAll(S,plan);render();toast(f.length?'Alcune settimane non generabili: allenta le regole':'Piano rigenerato ✅');break;}
     case 'apply':apply();break;
     case 'copyday':{const src=S.days[di];S.days.forEach((d,i)=>{if(i!==di)S.days[i]=JSON.parse(JSON.stringify(Object.assign({},src,{avail:d.avail})));});render();toast('Copiato su tutti i giorni (disponibilità esclusa)');break;}
     case 'addfascia':{const id='F'+Date.now().toString(36);S.fasce.push({id,name:'Nuova fascia',mode:'start',from:540,to:720});render();break;}
