@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Turni"><meta name="theme-color" content="#2563eb">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADFElEQVR4Xu3bsWrVYBzG4VQEQcRJr0Daq3B3dXWUFrwmoeDoNTi5eBWCg3M7iQhuDoFOLfY9bb68SZ9n7mmS7/v3l54cztHx6cUE13lkWbiJ4cBwkFMOlIOccqAc5JQD5SCnHCgHOeVAOcgpB8pBTjlQDnLKgXKQUw6Ug5xyoBzklAPlIKccKAc55UA5yCkHykFOOVAOcsqBcpBTDpSD3OP8Jbf198e32/4od/Pk1eu7/YLrua3gtkJOOVAOcsqBcpBTDpSDnHKgHOSUA+UgpxwoBznlQDnIKQfKQU45UA5yyoFykFMOlIOccqAc5JQD5SC34Bepf359m58Phzg5uzzkZf/jtoLbCjnlQDnIKQfKQU45UA5yyoFykFMOlIPcgh+8HeDPp2cHvOrePX3/+95/5xYV3VZKJmOais5kXS3D0TMZs7bzWUXFcHTuROdZjVQxHHQyHHgrS045UA5yykF3OTqfSHae1Ugt5WjbibbzWUXLcExT0X6YjFnXB292pUpROWhjOOh+t0In5UA5yCkHykFOObhR10Owl18+b32vLt682/olXCkqxw4mY5p2chWzluHYx2TMdnMtFcOxm9W8so8rqhgOOhkOPOcgpxwoBznloLsce3qqONvHFbWUYx+ruafJKHpCupu/tj1NedcHb3ta2R1oua1QyHDQ/W6FTsqBcpBTDpSDnHJwo66HYGcffg3Yq/OPzwccZQeKyjFmMqZp3IG2rmU4hk3GbPDhNqpiOFbZqlUOui0Vw0Enw4HnHOSUA+Ugpxx0l2OVR5arHHRbWsoxeKsGH26jWoZjmsZtmMm4pa4P3mxblaJy0MZwsMa7lZOzSws/wHLrrBysUY5pWnComS2Xja4vUtNm8dvKoqP9wC29tosPx9Lpe7CWnoxxt5UBV/KgjFnPo+PTi5HL+v38xcjD7c+YsZiNHo6ZETnAyLFYczjYhBH/kLJRhoMbGQ4MBznlQDnIKQfKQU45UA5yyoFykFMOlIOccqAc5JQD5SCnHCgHOeVAOcgpB8pBTjlQDnLKgXKQUw6Ug9w/3U1lcHIWx/IAAAAASUVORK5CYII="><link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADFElEQVR4Xu3bsWrVYBzG4VQEQcRJr0Daq3B3dXWUFrwmoeDoNTi5eBWCg3M7iQhuDoFOLfY9bb68SZ9n7mmS7/v3l54cztHx6cUE13lkWbiJ4cBwkFMOlIOccqAc5JQD5SCnHCgHOeVAOcgpB8pBTjlQDnLKgXKQUw6Ug5xyoBzklAPlIKccKAc55UA5yCkHykFOOVAOcsqBcpBTDpSD3OP8Jbf198e32/4od/Pk1eu7/YLrua3gtkJOOVAOcsqBcpBTDpSDnHKgHOSUA+UgpxwoBznlQDnIKQfKQU45UA5yyoFykFMOlIOccqAc5JQD5SC34Bepf359m58Phzg5uzzkZf/jtoLbCjnlQDnIKQfKQU45UA5yyoFykFMOlIPcgh+8HeDPp2cHvOrePX3/+95/5xYV3VZKJmOais5kXS3D0TMZs7bzWUXFcHTuROdZjVQxHHQyHHgrS045UA5yykF3OTqfSHae1Ugt5WjbibbzWUXLcExT0X6YjFnXB292pUpROWhjOOh+t0In5UA5yCkHykFOObhR10Owl18+b32vLt682/olXCkqxw4mY5p2chWzluHYx2TMdnMtFcOxm9W8so8rqhgOOhkOPOcgpxwoBznloLsce3qqONvHFbWUYx+ruafJKHpCupu/tj1NedcHb3ta2R1oua1QyHDQ/W6FTsqBcpBTDpSDnHJwo66HYGcffg3Yq/OPzwccZQeKyjFmMqZp3IG2rmU4hk3GbPDhNqpiOFbZqlUOui0Vw0Enw4HnHOSUA+Ugpxx0l2OVR5arHHRbWsoxeKsGH26jWoZjmsZtmMm4pa4P3mxblaJy0MZwsMa7lZOzSws/wHLrrBysUY5pWnComS2Xja4vUtNm8dvKoqP9wC29tosPx9Lpe7CWnoxxt5UBV/KgjFnPo+PTi5HL+v38xcjD7c+YsZiNHo6ZETnAyLFYczjYhBH/kLJRhoMbGQ4MBznlQDnIKQfKQU45UA5yyoFykFMOlIOccqAc5JQD5SCnHCgHOeVAOcgpB8pBTjlQDnLKgXKQUw6Ug9w/3U1lcHIWx/IAAAAASUVORK5CYII=">
+<title>Turni</title>
+<style>
+:root{--bg:#f4f6fa;--c:#fff;--t:#1b2230;--m:#6b7587;--b:#dfe4ee;--p:#2563eb;--am:#f59e0b;--pm:#14b8a6;--late:#6366f1;--g:#16a34a;--o:#d97706;--w:#fff4e0}
+@media(prefers-color-scheme:dark){:root{--bg:#10141c;--c:#1a202c;--t:#e8ecf4;--m:#97a1b5;--b:#2b3447;--w:#3a2c10}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:16px/1.4 -apple-system,system-ui,sans-serif;padding-bottom:84px}
+header{padding:calc(14px + env(safe-area-inset-top)) 16px 6px;font-weight:700;font-size:20px}header small{font-weight:400;font-size:12px;color:var(--m);margin-left:6px}.pos{color:var(--p);font-weight:600}textarea{width:100%;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t)}
+#view{max-width:560px;margin:0 auto;padding:6px 14px}
+.card{background:var(--c);border:1px solid var(--b);border-radius:14px;overflow:hidden;margin:8px 0}
+.scroll{overflow-x:auto}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--b);gap:8px;flex-wrap:wrap}
+.tot{font-weight:700}.g{color:var(--g)}.o{color:var(--o)}
+.row{display:grid;grid-template-columns:64px 1fr auto;gap:8px;padding:12px 14px;border-bottom:1px solid var(--b);border-left:5px solid transparent;cursor:pointer}
+.row:last-child{border-bottom:0}.row.am{border-left-color:var(--am)}.row.pm{border-left-color:var(--pm)}.row.late{border-left-color:var(--late)}.row.rest{color:var(--m)}
+.dn{font-weight:700}.dn small{font-weight:400;color:var(--m)}.hh{font-variant-numeric:tabular-nums;font-weight:600}.tm em{color:var(--m);font-size:13px}
+.legend{display:flex;gap:12px;font-size:13px;color:var(--m);margin:2px 4px 8px}.legend span:before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;background:currentColor}
+.legend .am:before{background:var(--am)}.legend .pm:before{background:var(--pm)}.legend .late:before{background:var(--late)}
+.nav{display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.nav button{width:48px}
+button,.filebtn{font:inherit;border:1px solid var(--b);background:var(--c);color:var(--t);border-radius:12px;padding:11px 14px;cursor:pointer;text-align:center}
+button.pri{background:var(--p);border-color:var(--p);color:#fff;font-weight:600}button:disabled{opacity:.35}
+button.danger{width:100%;margin-top:14px;color:#dc2626}
+.btns{display:flex;gap:8px;margin:10px 0}.btns>*{flex:1}.btns.col{flex-direction:column}.filebtn input{display:none}
+.warn{background:var(--w);border-radius:12px;padding:10px 12px;font-size:14px;margin:8px 0}.okbox{padding:10px 12px;font-size:14px;color:var(--g)}
+.hint{color:var(--m);font-size:13px;margin:6px 2px}
+label.f{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b)}
+label.f span{flex:1}label.f input:not([type=checkbox]),label.f select{width:150px;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t)}
+label.chk input{width:22px;height:22px}
+details{background:var(--c);border:1px solid var(--b);border-radius:14px;margin:8px 0;padding:0 14px}
+summary{padding:13px 0;font-weight:600;cursor:pointer}.sec{padding-bottom:12px}.sec button{width:100%;margin-top:10px}
+.fas{border-bottom:2px solid var(--b);padding-bottom:6px;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:4px 16px}.chips label.f{border:0;flex:1 1 40%}
+.chip{background:var(--bg);border:1px solid var(--b);border-radius:20px;padding:4px 10px;font-size:14px}.chip b{cursor:pointer;margin-left:4px}
+table.ov{border-collapse:collapse;width:100%;text-align:center;font-size:13px}
+table.ov th,table.ov td{padding:8px 4px;border-bottom:1px solid var(--b);border-right:1px solid var(--b)}
+table.ov td{cursor:pointer;border-top:3px solid transparent}table.ov td.am{border-top-color:var(--am)}table.ov td.pm{border-top-color:var(--pm)}table.ov td.late{border-top-color:var(--late)}table.ov td.rest{color:var(--m)}
+.tt{font-weight:700}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--c);border-top:1px solid var(--b);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;border-radius:0;background:none;font-size:12px;padding:10px 2px}nav button.on{color:var(--p);font-weight:700}
+#sheet{display:none;position:fixed;inset:0;background:#0007;align-items:flex-end;justify-content:center;z-index:5}#sheet.on{display:flex}
+#sheet .box{background:var(--c);width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}#sheet h3{margin:0 0 6px}
+#toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;max-width:90%;text-align:center;z-index:9}#toast.on{opacity:1}
+#print{display:none}
+@media print{body>*:not(#print){display:none!important}#print{display:block;color:#000;background:#fff;padding:0}#print h3{margin:18px 0 4px;display:flex;justify-content:space-between}#print table{width:100%;border-collapse:collapse}#print td{border:1px solid #999;padding:5px 8px}#print td:last-child{text-align:right;width:70px}}
+</style></head><body>
+<header>🗓️ Turni <small id="ver"></small></header><div id="view"></div>
+<nav><button data-tab="plan">📅<br>Piano</button><button data-tab="ov">🗂️<br>Panoramica</button><button data-tab="set">⚙️<br>Impostazioni</button><button data-tab="exp">📤<br>Esporta</button></nav>
+<div id="sheet"></div><div id="toast"></div><div id="print"></div>
+<script>
+'use strict';
+const APP_VERSION='1.2.0';
+const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
+const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
+const pad=n=>String(n).padStart(2,'0');
+const m2t=m=>pad(Math.floor(m/60))+':'+pad(m%60);
+const t2m=t=>{const p=String(t).split(':').map(Number);return (p[0]||0)*60+(p[1]||0);};
+const dur=m=>Math.floor(m/60)+':'+pad(((m%60)+60)%60);
+function dayNum(s){const p=s.split('-').map(Number);return Math.round(Date.UTC(p[0],p[1]-1,p[2])/864e5);}
+function iso(n){const d=new Date(n*864e5);return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate());}
+function ddmm(n){const d=new Date(n*864e5);return pad(d.getUTCDate())+'/'+pad(d.getUTCMonth()+1);}
+function ddmmyyyy(n){return ddmm(n)+'/'+new Date(n*864e5).getUTCFullYear();}
+function mondayOf(n){return n-((((n+3)%7)+7)%7);}
+function todayIso(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+
+function defaultSettings(today){
+  return {
+    startDate:iso(mondayOf(dayNum(today))), weeks:4,
+    targetMin:1380, tolMin:0,
+    minWD:5, maxWD:6, maxConsec:6, restH:11, step:15, restPref:'none', code:'190',
+    positions:['Isola 2','Fastlane 2','Bazar 3 NP','Cassa Esterna','Retrocassa NP1','x-lavagna ASZ'],
+    fasce:[
+      {id:'M',name:'Mattina',mode:'start',from:450,to:570},
+      {id:'P',name:'Pomeriggio',mode:'start',from:750,to:1050},
+      {id:'C',name:'Chiusura',mode:'end',from:1260,to:1275}
+    ],
+    days:DAYN.map(()=>({avail:'on',durMin:180,durMax:300,from:450,to:1275,tend:1,fasce:{}})),
+    vacations:[]
+  };
+}
+const restDays=()=>Array.from({length:7},()=>({rest:true,s:null,e:null,note:'',pos:''}));
+function newPlan(S){
+  const b=mondayOf(dayNum(S.startDate));
+  return Array.from({length:S.weeks},(_,i)=>({start:iso(b+7*i),target:null,days:restDays()}));
+}
+function weekTotal(w){return w.days.reduce((a,d)=>a+((d.rest||d.s==null||d.e==null)?0:Math.max(0,d.e-d.s)),0);}
+function buildShifts(plan){
+  const out=[];
+  plan.forEach((w,wi)=>{const b=dayNum(w.start);w.days.forEach((d,di)=>{
+    if(!d.rest&&d.s!=null&&d.e!=null&&d.e>d.s)out.push({wi,di,abs:b+di,s:d.s,e:d.e});});});
+  return out;
+}
+
+function validate(plan,S){
+  const iss=plan.map(()=>[]);
+  const vac=new Set(S.vacations);
+  const add=(wi,di,msg)=>iss[wi].push({di,msg});
+  plan.forEach((w,wi)=>{
+    const base=dayNum(w.start);let tot=0,n=0;
+    w.days.forEach((d,di)=>{
+      if(d.rest)return;
+      const c=S.days[di];n++;
+      if(d.s==null||d.e==null||d.e<=d.s){add(wi,di,'Orario non valido');return;}
+      const du=d.e-d.s;tot+=du;
+      if(c.avail==='rest')add(wi,di,'Giorno impostato sempre di riposo');
+      if(vac.has(iso(base+di)))add(wi,di,'Giorno di ferie/indisponibilità');
+      if(du<c.durMin)add(wi,di,'Turno sotto il minimo ('+dur(c.durMin)+')');
+      if(du>c.durMax)add(wi,di,'Turno sopra il massimo ('+dur(c.durMax)+')');
+      if(d.s<c.from||d.e>c.to)add(wi,di,'Fuori orario consentito ('+m2t(c.from)+'–'+m2t(c.to)+')');
+    });
+    const T=w.target==null?S.targetMin:w.target;
+    if(Math.abs(tot-T)>S.tolMin)add(wi,null,'Ore '+dur(tot)+' invece di '+dur(T));
+    if(n<S.minWD)add(wi,null,'Solo '+n+' giorni lavorati (min '+S.minWD+')');
+    if(n>S.maxWD)add(wi,null,n+' giorni lavorati (max '+S.maxWD+')');
+  });
+  const sh=buildShifts(plan);
+  for(let i=1;i<sh.length;i++){
+    const a=sh[i-1],b=sh[i],gap=(b.abs-a.abs)*1440+b.s-a.e;
+    if(gap<S.restH*60)add(b.wi,b.di,'Solo '+dur(gap)+' di riposo dal turno precedente (min '+S.restH+':00)');
+  }
+  let run=0,last=null;
+  sh.forEach(x=>{
+    if(last!==null&&x.abs===last+1)run++;else run=1;last=x.abs;
+    if(run>S.maxConsec)add(x.wi,x.di,run+' giorni consecutivi (max '+S.maxConsec+')');
+  });
+  return iss;
+}
+
+const rnd=n=>Math.floor(Math.random()*n);
+function wpick(items,wf){
+  const ws=items.map(wf);let r=Math.random()*ws.reduce((a,b)=>a+b,0);
+  for(let i=0;i<items.length;i++){r-=ws[i];if(r<=0)return i;}
+  return items.length-1;
+}
+function options(S,c,fa,d){
+  const out=[],st=S.step;
+  if(fa.mode==='start'){
+    for(let s=Math.ceil(fa.from/st)*st;s<=fa.to;s+=st){const e=s+d;if(s>=c.from&&e<=c.to)out.push({s,e});}
+  }else{
+    for(let e=Math.ceil(fa.from/st)*st;e<=fa.to;e+=st){const s=e-d;if(s>=c.from&&e<=c.to)out.push({s,e});}
+  }
+  return out;
+}
+function setup(S,plan,wi){
+  const w=plan[wi],base=dayNum(w.start),st=S.step;
+  const T=Math.round((w.target==null?S.targetMin:w.target)/st)*st;
+  const vac=new Set(S.vacations);
+  const cfg=S.days.map(c=>({c,mn:Math.ceil(c.durMin/st)*st,mx:Math.floor(c.durMax/st)*st}));
+  const cand=[];
+  for(let di=0;di<7;di++)if(cfg[di].c.avail!=='rest'&&!vac.has(iso(base+di)))cand.push(di);
+  return {w,base,st,T,cfg,cand};
+}
+function tryWeek(S,plan,wi,strict){
+  const {base,st,T,cfg,cand}=setup(S,plan,wi);
+  const lo=Math.min(S.minWD,cand.length),hi=Math.max(lo,Math.min(S.maxWD,cand.length));
+  const n=lo+rnd(hi-lo+1);
+  const pool=cand.slice(),ch=[];
+  while(ch.length<n){const i=wpick(pool,di=>cfg[di].c.avail==='avoid'?0.25:1);ch.push(pool.splice(i,1)[0]);}
+  ch.sort((a,b)=>a-b);
+  if(ch.some(di=>cfg[di].mn>cfg[di].mx))return null;
+  const sMn=ch.reduce((a,di)=>a+cfg[di].mn,0),sMx=ch.reduce((a,di)=>a+cfg[di].mx,0);
+  if(sMn>T||sMx<T)return null;
+  const du={};ch.forEach(di=>du[di]=cfg[di].mn);
+  let rem=(T-sMn)/st;
+  while(rem>0){
+    const room=ch.filter(di=>du[di]<cfg[di].mx);if(!room.length)return null;
+    const di=room[wpick(room,x=>[0.4,1,2.5][cfg[x].c.tend==null?1:cfg[x].c.tend])];
+    du[di]+=st;rem--;
+  }
+  const before=buildShifts(plan.slice(0,wi)),after=buildShifts(plan.slice(wi+1));
+  const prev=before.length?before[before.length-1]:null;
+  let prevStreak=0;
+  if(prev&&prev.abs===base-1){
+    prevStreak=1;
+    for(let i=before.length-2;i>=0&&before[i].abs===before[i+1].abs-1;i--)prevStreak++;
+  }
+  const nxt=after.length?after[0]:null;
+  let nextRun=0;
+  if(nxt&&nxt.abs===base+7){
+    nextRun=1;
+    for(let i=1;i<after.length&&after[i].abs===after[i-1].abs+1;i++)nextRun++;
+  }
+  if(strict&&S.restPref!=='none'){
+    const r=[0,1,2,3,4,5,6].map(di=>!ch.includes(di));
+    let runs=0,maxRun=0,cr=0;
+    r.forEach(x=>{if(x){cr++;maxRun=Math.max(maxRun,cr);}else{if(cr)runs++;cr=0;}});if(cr)runs++;
+    const prevRest=before.length>0&&!(prev&&prev.abs===base-1);
+    const nextRest=after.length>0&&!(nxt&&nxt.abs===base+7);
+    if(S.restPref==='consec'&&runs>1)return null;
+    if(S.restPref==='sparse'&&(maxRun>1||(r[0]&&prevRest)||(r[6]&&nextRest)))return null;
+  }
+  let run=prevStreak;
+  for(let di=0;di<7;di++){
+    if(ch.includes(di))run++;else run=0;
+    if(run>S.maxConsec)return null;
+  }
+  if(run>0&&run+nextRun>S.maxConsec)return null;
+  const days=restDays();
+  let prevEnd=prev?prev.abs*1440+prev.e:-1e9;
+  for(const di of ch){
+    const c=cfg[di].c,fas=S.fasce.filter(f=>c.fasce[f.id]!==false);
+    const byF=fas.map(f=>options(S,c,f,du[di]).filter(o=>(base+di)*1440+o.s-prevEnd>=S.restH*60)).filter(a=>a.length);
+    if(!byF.length)return null;
+    const grp=byF[rnd(byF.length)],o=grp[rnd(grp.length)];
+    days[di]={rest:false,s:o.s,e:o.e,note:'',pos:''};
+    prevEnd=(base+di)*1440+o.e;
+  }
+  if(nxt){
+    const gap=nxt.abs*1440+nxt.s-prevEnd;
+    if(ch.length&&gap<S.restH*60)return null;
+  }
+  return days;
+}
+function genWeek(S,plan,wi,tries=800){
+  const old=plan[wi].days;
+  for(let t=0;t<tries;t++){
+    const d=tryWeek(S,plan,wi,t<tries*0.6);
+    if(d){d.forEach((x,i)=>{if(old[i]){if(old[i].note)x.note=old[i].note;if(!x.rest&&old[i].pos)x.pos=old[i].pos;}});plan[wi].days=d;return true;}
+  }
+  return false;
+}
+function genAll(S,plan){
+  const fails=[];
+  plan.forEach(w=>{w.days=restDays();});
+  plan.forEach((w,wi)=>{if(!genWeek(S,plan,wi))fails.push(wi);});
+  return fails;
+}
+function diagnose(S,plan,wi){
+  const {T,cfg,cand}=setup(S,plan,wi);const r=[];
+  if(cand.length<S.minWD)r.push('giorni disponibili ('+cand.length+') meno del minimo di giorni lavorati ('+S.minWD+')');
+  const best=cand.slice().sort((a,b)=>cfg[b].mx-cfg[a].mx).slice(0,Math.min(S.maxWD,cand.length));
+  const mxs=best.reduce((a,di)=>a+cfg[di].mx,0);
+  if(mxs<T)r.push('con i massimi di durata si arriva a '+dur(mxs)+', meno delle '+dur(T)+' richieste');
+  const mns=cand.slice().sort((a,b)=>cfg[a].mn-cfg[b].mn).slice(0,Math.min(S.minWD,cand.length)).reduce((a,di)=>a+cfg[di].mn,0);
+  if(mns>T)r.push('con i minimi di durata servono almeno '+dur(mns)+', più delle '+dur(T)+' richieste');
+  if(!r.length)r.push('vincoli su riposo minimo, fasce orarie o giorni consecutivi troppo stretti');
+  return r.join('; ');
+}
+if(typeof module!=='undefined')module.exports={DAYN,defaultSettings,newPlan,genAll,genWeek,validate,weekTotal,dayNum,iso,m2t,dur,mondayOf,diagnose};
+
+const KEY='turni.v1';
+let S,plan,cur=0,tab='plan',vacFrom='',vacTo='';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function merge(def,s){
+  const o=Object.assign({},def,s);
+  o.days=DAYN.map((_,i)=>Object.assign({},def.days[i],(s.days||[])[i]||{}));
+  o.days.forEach(d=>{d.fasce=d.fasce||{};});
+  o.fasce=(s.fasce&&s.fasce.length)?s.fasce:def.fasce;
+  o.vacations=s.vacations||[];
+  o.positions=s.positions||def.positions;
+  return o;
+}
+function load(){
+  try{
+    const j=JSON.parse(localStorage.getItem(KEY));
+    if(j&&j.S&&j.plan){S=merge(defaultSettings(todayIso()),j.S);plan=j.plan;cur=Math.min(j.cur||0,plan.length-1);return;}
+  }catch(e){}
+  S=defaultSettings(todayIso());plan=newPlan(S);genAll(S,plan);
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({S,plan,cur}));}catch(e){}}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600);}
+const get=p=>p.split('.').reduce((o,k)=>o==null?o:o[k],S);
+function set(p,v){const k=p.split('.');const last=k.pop();k.reduce((o,x)=>o[x],S)[last]=v;}
+
+/* ---------- PIANO ---------- */
+function cls(d){if(d.rest)return 'rest';if(d.s<720)return 'am';if(d.e>=1230)return 'late';return 'pm';}
+function viewPlan(){
+  const w=plan[cur],base=dayNum(w.start),iss=validate(plan,S)[cur];
+  const tot=weekTotal(w),T=w.target==null?S.targetMin:w.target,ok=Math.abs(tot-T)<=S.tolMin;
+  const rows=w.days.map((d,di)=>{
+    const bad=iss.some(x=>x.di===di);
+    return `<div class="row ${cls(d)}" data-act="edit" data-di="${di}">
+      <div class="dn">${DAYN[di]} <small>${ddmm(base+di)}</small></div>
+      <div class="tm">${d.rest?'Riposo':m2t(d.s)+' – '+m2t(d.e)}${d.pos?`<br><small class="pos">${esc(d.pos)}</small>`:''}${d.note?` <em>${esc(d.note)}</em>`:''}</div>
+      <div class="hh">${d.rest?'0:00':dur(d.e-d.s)}${bad?' ⚠️':''}</div></div>`;}).join('');
+  const il=iss.length?`<div class="warn">${iss.map(x=>`<div>⚠️ ${x.di==null?'Settimana':DAYN[x.di]+' '+ddmm(base+x.di)}: ${esc(x.msg)}</div>`).join('')}</div>`:'<div class="okbox">✅ Tutte le regole rispettate</div>';
+  return `<div class="nav"><button data-act="prev" ${cur==0?'disabled':''}>‹</button>
+    <div>Settimana ${cur+1} / ${plan.length}</div><button data-act="next" ${cur==plan.length-1?'disabled':''}>›</button></div>
+  <div class="card"><div class="ch"><b>${ddmmyyyy(base)} – ${ddmmyyyy(base+6)}</b>
+    <span class="tot ${ok?'g':'o'}">${dur(tot)} / ${dur(T)} ${ok?'✅':'⚠️'}</span></div>${rows}</div>
+  <div class="legend"><span class="am">Mattina</span><span class="pm">Pomeriggio</span><span class="late">Chiusura</span></div>
+  ${il}
+  <div class="btns"><button class="pri" data-act="regen">🔄 Rigenera settimana</button>
+  <button data-act="regenall">🎲 Rigenera tutto</button></div>
+  <label class="f"><span>Obiettivo ore di questa settimana</span>
+  <input type="number" step="0.25" min="0" placeholder="${(S.targetMin/60)}" value="${w.target==null?'':w.target/60}" data-wt="1"></label>`;
+}
+function viewOverview(){
+  const iss=validate(plan,S);
+  let h='<div class="card scroll"><table class="ov"><tr><th></th>'+plan.map((w,i)=>`<th data-act="goto" data-wi="${i}">${ddmm(dayNum(w.start))}</th>`).join('')+'</tr>';
+  for(let di=0;di<7;di++){
+    h+=`<tr><th>${DAYN[di]}</th>`+plan.map((w,wi)=>{const d=w.days[di];
+      return `<td class="${cls(d)}" data-act="goto" data-wi="${wi}">${d.rest?'Riposo':m2t(d.s)+'<br>'+m2t(d.e)}${iss[wi].some(x=>x.di===di)?' ⚠️':''}</td>`;}).join('')+'</tr>';
+  }
+  h+='<tr><th>Ore</th>'+plan.map((w,wi)=>{const t=weekTotal(w),T=w.target==null?S.targetMin:w.target;
+    return `<td class="tt ${Math.abs(t-T)<=S.tolMin?'g':'o'}">${dur(t)}</td>`;}).join('')+'</tr></table></div>';
+  return h+'<p class="hint">Tocca una colonna per aprire la settimana.</p>';
+}
+
+/* ---------- IMPOSTAZIONI ---------- */
+function F(label,path,type,o={}){
+  const v=get(path);let inp;
+  if(type==='check')inp=`<input type="checkbox" data-bind="${path}" data-t="check" ${v!==false&&v?'checked':''}>`;
+  else if(type==='fcheck')inp=`<input type="checkbox" data-bind="${path}" data-t="check" ${v!==false?'checked':''}>`;
+  else if(type==='sel')inp=`<select data-bind="${path}" data-t="${o.num?'selnum':'sel'}">${o.opts.map(x=>`<option value="${x[0]}" ${String(x[0])===String(v)?'selected':''}>${x[1]}</option>`).join('')}</select>`;
+  else if(type==='time')inp=`<input type="time" data-bind="${path}" data-t="time" value="${m2t(v)}">`;
+  else if(type==='hours')inp=`<input type="number" step="0.25" min="0" data-bind="${path}" data-t="hours" value="${v/60}">`;
+  else if(type==='text')inp=`<input type="text" data-bind="${path}" data-t="text" value="${esc(v)}">`;
+  else if(type==='date')inp=`<input type="date" data-bind="${path}" data-t="date" value="${v}">`;
+  else inp=`<input type="number" inputmode="numeric" min="${o.min==null?0:o.min}" ${o.max!=null?`max="${o.max}"`:''} step="${o.step||1}" data-bind="${path}" data-t="int" value="${v}">`;
+  return `<label class="f ${type==='check'||type==='fcheck'?'chk':''}"><span>${label}</span>${inp}</label>`;
+}
+function viewSettings(){
+  const av=[['on','Normale'],['avoid','Preferisci riposo'],['rest','Sempre riposo']];
+  const td=[[0,'Turni corti'],[1,'Normale'],[2,'Turni lunghi']];
+  const days=DAYF.map((n,i)=>`<details><summary>${n}</summary><div class="sec">
+    ${F('Disponibilità',`days.${i}.avail`,'sel',{opts:av})}
+    ${F('Durata minima turno',`days.${i}.durMin`,'time')}
+    ${F('Durata massima turno',`days.${i}.durMax`,'time')}
+    ${F('Non prima delle',`days.${i}.from`,'time')}
+    ${F('Non oltre le',`days.${i}.to`,'time')}
+    ${F('Tendenza ore',`days.${i}.tend`,'sel',{opts:td,num:1})}
+    <div class="chips">${S.fasce.map(f=>F(esc(f.name),`days.${i}.fasce.${f.id}`,'fcheck')).join('')}</div>
+    <button data-act="copyday" data-di="${i}">📋 Applica a tutti i giorni</button></div></details>`).join('');
+  const fas=S.fasce.map((f,i)=>`<div class="fas">${F('Nome',`fasce.${i}.name`,'text')}
+    ${F('Tipo',`fasce.${i}.mode`,'sel',{opts:[['start','Si definisce l’inizio'],['end','Si definisce la fine']]})}
+    ${F(f.mode==='start'?'Inizio da':'Fine da',`fasce.${i}.from`,'time')}${F(f.mode==='start'?'Inizio fino a':'Fine fino a',`fasce.${i}.to`,'time')}
+    <button data-act="delfascia" data-i="${i}">🗑️ Elimina fascia</button></div>`).join('');
+  const vac=S.vacations.length?`<div class="chips">${S.vacations.map((d,i)=>`<span class="chip">${ddmm(dayNum(d))} <b data-act="delvac" data-i="${i}">✕</b></span>`).join('')}</div>`:'<p class="hint">Nessun giorno impostato.</p>';
+  return `<div class="btns"><button class="pri" data-act="apply">✅ Applica e genera il piano</button></div>
+  <p class="hint">Le modifiche si salvano subito; per ricalcolare i turni usa il pulsante qui sopra.</p>
+  <details open><summary>📆 Periodo</summary><div class="sec">${F('Primo lunedì','startDate','date')}${F('Numero di settimane','weeks','int',{min:1,max:26})}</div></details>
+  <details open><summary>⏱️ Ore e regole</summary><div class="sec">
+    ${F('Ore settimanali (h)','targetMin','hours')}${F('Tolleranza (minuti)','tolMin','int',{step:5})}
+    ${F('Giorni lavorati min','minWD','int',{min:1,max:7})}${F('Giorni lavorati max','maxWD','int',{min:1,max:7})}
+    ${F('Max giorni consecutivi','maxConsec','int',{min:1,max:7})}${F('Riposo minimo tra turni (h)','restH','int',{max:24})}
+    ${F('Passo minuti','step','sel',{opts:[[5,'5'],[10,'10'],[15,'15'],[30,'30']],num:1})}
+    ${F('Preferenza riposi','restPref','sel',{opts:[['none','Indifferente'],['consec','Consecutivi'],['sparse','Separati (non di fila)']]})}
+    <p class="hint">La preferenza sui riposi viene cercata per prima; se le altre regole non lo permettono, viene ignorata.</p></div></details>
+  <details><summary>📍 Posizioni (menu a tendina)</summary><div class="sec">
+    <p class="hint">Una per riga. Compaiono nel menu del turno; in ogni turno puoi comunque aggiungere una nota libera.</p>
+    ${F('Codice stampato nel PDF (es. 190)','code','text')}
+    <textarea data-bind="positions" data-t="lines" rows="7">${esc(S.positions.join('\n'))}</textarea></div></details>
+  <details><summary>🌗 Fasce orarie</summary><div class="sec">${fas}<button data-act="addfascia">➕ Aggiungi fascia</button></div></details>
+  <details><summary>📅 Regole per giorno</summary><div class="sec">${days}</div></details>
+  <details><summary>🏖️ Ferie / indisponibilità</summary><div class="sec">${vac}
+    <label class="f"><span>Dal</span><input type="date" id="vf" value="${vacFrom}"></label>
+    <label class="f"><span>Al</span><input type="date" id="vt" value="${vacTo}"></label>
+    <button data-act="addvac">➕ Aggiungi</button></div></details>
+  <button class="danger" data-act="reset">♻️ Ripristina impostazioni predefinite</button>
+  <p class="hint" style="text-align:center">Turni v${APP_VERSION}</p>`;
+}
+
+/* ---------- ESPORTA ---------- */
+function asText(){
+  return plan.map(w=>{const b=dayNum(w.start);
+    return 'Turni '+ddmmyyyy(b)+' – '+ddmmyyyy(b+6)+' ('+dur(weekTotal(w))+')\n'+w.days.map((d,di)=>
+      DAYN[di]+' '+ddmm(b+di)+'  '+(d.rest?'Riposo':m2t(d.s)+' – '+m2t(d.e)+'  ('+dur(d.e-d.s)+')')+(d.pos?'  ['+d.pos+']':'')+(d.note?'  '+d.note:'')).join('\n');}).join('\n\n');
+}
+function asCSV(){
+  const r=[['Data','Giorno','Inizio','Fine','Ore','Posizione','Note']];
+  plan.forEach(w=>{const b=dayNum(w.start);w.days.forEach((d,di)=>{
+    const n=ddmmyyyy(b+di);r.push(d.rest?[n,DAYF[di],'','','0:00','','Riposo'+(d.note?' - '+d.note:'')]:[n,DAYF[di],m2t(d.s),m2t(d.e),dur(d.e-d.s),d.pos||'',d.note||'']);});});
+  return '﻿'+r.map(x=>x.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+}
+function asICS(){
+  const st=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
+  const ev=[];
+  plan.forEach(w=>{const b=dayNum(w.start);w.days.forEach((d,di)=>{
+    if(d.rest||d.s==null)return;const ds=iso(b+di).replace(/-/g,'');
+    ev.push(['BEGIN:VEVENT','UID:turni-'+ds+'-'+d.s+'@turni','DTSTAMP:'+st,'DTSTART:'+ds+'T'+pad(Math.floor(d.s/60))+pad(d.s%60)+'00',
+      'DTEND:'+ds+'T'+pad(Math.floor(d.e/60))+pad(d.e%60)+'00','SUMMARY:Turno lavoro'+(d.pos?' - '+d.pos:'')+(d.note?' - '+d.note:''),'END:VEVENT'].join('\r\n'));});});
+  return 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Turni//IT\r\n'+ev.join('\r\n')+'\r\nEND:VCALENDAR\r\n';
+}
+function download(name,mime,txt){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:mime}));a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+}
+function copy(t){
+  if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('Copiato ✅'),()=>toast('Copia non riuscita'));
+  else{const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove();toast('Copiato ✅');}
+}
+function viewExport(){
+  return `<div class="btns col">
+  <button class="pri" data-act="pdf">📄 Scarica PDF</button>
+  <button data-act="copytxt">📋 Copia come testo</button>
+  <button data-act="sharetxt">📤 Condividi testo</button>
+  <button data-act="csv">📊 Scarica CSV (Excel)</button>
+  <button data-act="ics">📆 Scarica calendario (.ics)</button>
+  <button data-act="print">🖨️ Stampa / salva PDF</button>
+  <button data-act="backup">💾 Backup completo (.json)</button>
+  <label class="filebtn">📥 Ripristina backup<input type="file" accept=".json,application/json" id="restore"></label></div>`;
+}
+function renderPrint(){
+  $('#print').innerHTML=plan.map(w=>{const b=dayNum(w.start);
+    return `<h3>${ddmmyyyy(b)} – ${ddmmyyyy(b+6)} <span>${dur(weekTotal(w))}</span></h3><table>`+w.days.map((d,di)=>
+      `<tr><td>${DAYN[di]} ${ddmm(b+di)}</td><td>${d.rest?'Riposo':m2t(d.s)+' – '+m2t(d.e)}${d.pos?' · '+esc(d.pos):''}${d.note?' ('+esc(d.note)+')':''}</td><td>${d.rest?'0:00':dur(d.e-d.s)}</td></tr>`).join('')+'</table>';}).join('');
+}
+
+/* ---------- PDF ---------- */
+function makePDF(){
+  const W=595,H=842,M=40,pages=[];let ops=[],y=M;
+  const enc=s=>{let o='';for(const ch of String(s)){let c=ch.charCodeAt(0);
+    if(c===0x2013)c=0x96;else if(c===0x2014)c=0x97;else if(c===0x2019)c=0x92;
+    if(c>255||c<32)continue;
+    if(c>126)o+='\\'+c.toString(8).padStart(3,'0');else if(ch==='('||ch===')'||ch==='\\')o+='\\'+ch;else o+=ch;}return o;};
+  const txt=(x,yy,sz,s,b,col)=>ops.push(`BT /F${b?2:1} ${sz} Tf ${(col||[0,0,0]).join(' ')} rg ${x} ${H-yy} Td (${enc(s)}) Tj ET`);
+  const rect=(x,yy,w,h,col)=>ops.push(`${col.join(' ')} rg ${x} ${H-yy-h} ${w} ${h} re f`);
+  const box=(x,yy,w,h)=>ops.push(`0 0 0 RG 1 w ${x} ${H-yy-h} ${w} ${h} re S`);
+  const ln=(x1,y1,x2,y2,g)=>ops.push(`${g||0} G 0.7 w ${x1} ${H-y1} m ${x2} ${H-y2} l S`);
+  const COL={am:[0.96,0.62,0.04],pm:[0.08,0.72,0.65],late:[0.39,0.40,0.95]};
+  const GR=[0.45,0.48,0.55];
+  const newPage=()=>{if(ops.length)pages.push(ops);ops=[];y=M;};
+  const T=w=>w.target==null?S.targetMin:w.target;
+  const lbl=d=>d.rest?'Riposo':m2t(d.s)+' - '+m2t(d.e);
+
+  /* Foglio 1: formato originale */
+  const RH=18,HH=24;
+  plan.forEach(w=>{
+    if(y+HH+4+7*RH+14>H-M-18)newPage();
+    const b=dayNum(w.start),x1=M,x2=W-M,xc=W-M-60;
+    txt(M+8,y+16,12,ddmmyyyy(b)+' - '+ddmmyyyy(b+6),true);
+    txt(xc+8,y+12,10,dur(weekTotal(w)),true);txt(xc+8,y+23,10,dur(T(w)),true);y+=HH+4;
+    const top=y;
+    w.days.forEach((d,di)=>{
+      const s=d.rest?'Riposo':DAYN[di]+' '+m2t(d.s)+' - '+m2t(d.e)+(S.code?'  '+S.code:'')+(d.pos?'  '+d.pos:'')+(d.note?'  ('+d.note+')':'');
+      txt(x1+6,y+13,10,s,false);
+      txt(xc+8,y+13,10,d.rest?'0:00':dur(d.e-d.s));
+      if(di)ln(x1,y,x2,y);
+      y+=RH;
+    });
+    box(x1,top,x2-x1,y-top);ln(xc,top,xc,y);
+    y+=14;
+  });
+
+  /* Foglio 2: tabella riepilogo */
+  newPage();
+  txt(M,y+14,18,'Panoramica turni',true);y+=30;
+  txt(M,y,9,'Turni v'+APP_VERSION,false,GR);y+=18;
+  const K=6;
+  for(let c0=0;c0<plan.length;c0+=K){
+    const ws=plan.slice(c0,c0+K),cw=Math.min(110,(W-2*M-36)/ws.length),tw=36+cw*ws.length,RH2=34;
+    if(y+22+7*RH2+24+20>H-M-18)newPage();
+    rect(M,y,tw,22,[0.9,0.92,0.96]);
+    ws.forEach((w,i)=>txt(M+36+i*cw+6,y+15,10,ddmm(dayNum(w.start))+' - '+ddmm(dayNum(w.start)+6),true));y+=22;
+    const top=y;
+    for(let di=0;di<7;di++){
+      txt(M+6,y+21,10,DAYN[di],true);
+      ws.forEach((w,i)=>{
+        const d=w.days[di],x=M+36+i*cw;
+        if(d.rest){txt(x+6,y+21,10,'Riposo',false,GR);}
+        else{rect(x+1,y+1,cw-2,3,COL[cls(d)]);
+          txt(x+6,y+17,10,m2t(d.s)+' - '+m2t(d.e),true);
+          if(d.pos)txt(x+6,y+29,8,d.pos,false,GR);}
+      });
+      ln(M,y+RH2,M+tw,y+RH2,0.8);y+=RH2;
+    }
+    rect(M,y,tw,24,[0.9,0.92,0.96]);txt(M+6,y+16,10,'Ore',true);
+    ws.forEach((w,i)=>txt(M+36+i*cw+6,y+16,10,dur(weekTotal(w))+' / '+dur(T(w)),true));y+=24;
+    for(let i=0;i<=ws.length;i++)ln(M+36+(i-1)*cw+(i?0:cw),top,M+36+(i-1)*cw+(i?0:cw),y,0.8);
+    ln(M,top,M,y,0.8);box(M,top-22,tw,y-top+22);
+    y+=20;
+  }
+  pages.push(ops);
+  pages.forEach((p,i)=>{p.push(`BT /F1 8 Tf 0.5 0.53 0.6 rg ${M} 24 Td (${enc('Turni v'+APP_VERSION+'  ·  pagina '+(i+1)+' di '+pages.length)}) Tj ET`);});
+  const objs=[];
+  objs[1]='<< /Type /Catalog /Pages 2 0 R >>';
+  objs[3]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+  objs[4]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+  let n=5;const kids=[];
+  pages.forEach(p=>{const st=p.join('\n'),c=n++,pg=n++;
+    objs[c]=`<< /Length ${st.length} >>\nstream\n${st}\nendstream`;
+    objs[pg]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${c} 0 R >>`;kids.push(pg+' 0 R');});
+  objs[2]=`<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${kids.length} >>`;
+  let out='%PDF-1.4\n';const off=[];
+  for(let i=1;i<objs.length;i++){off[i]=out.length;out+=i+' 0 obj\n'+objs[i]+'\nendobj\n';}
+  const xr=out.length;
+  out+='xref\n0 '+objs.length+'\n0000000000 65535 f \n'+off.slice(1).map(o=>String(o).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<< /Size '+objs.length+' /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF';
+  const u=new Uint8Array(out.length);for(let i=0;i<out.length;i++)u[i]=out.charCodeAt(i)&255;
+  return u;
+}
+async function exportPDF(){
+  const u=makePDF(),name='turni.pdf';
+  try{
+    const f=new File([u],name,{type:'application/pdf'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Turni'});return;}
+  }catch(e){if(e&&e.name==='AbortError')return;}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([u],{type:'application/pdf'}));a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+}
+
+/* ---------- EDIT ---------- */
+function openEdit(di){
+  const w=plan[cur],d=w.days[di],base=dayNum(w.start);
+  const s=d.rest?(S.days[di].from+30):d.s,e=d.rest?s+240:d.e;
+  $('#sheet').innerHTML=`<div class="box"><h3>${DAYF[di]} ${ddmm(base+di)}</h3>
+  <label class="f chk"><span>Riposo</span><input type="checkbox" id="e_r" ${d.rest?'checked':''}></label>
+  <label class="f"><span>Inizio</span><input type="time" id="e_s" step="${S.step*60}" value="${m2t(s)}"></label>
+  <label class="f"><span>Fine</span><input type="time" id="e_e" step="${S.step*60}" value="${m2t(e)}"></label>
+  <label class="f"><span>Posizione</span><select id="e_p"><option value="">—</option>${(S.positions.includes(d.pos)||!d.pos?S.positions:S.positions.concat([d.pos])).map(p=>`<option ${p===d.pos?'selected':''}>${esc(p)}</option>`).join('')}</select></label>
+  <label class="f"><span>Nota</span><input type="text" id="e_n" value="${esc(d.note)}"></label>
+  <div class="btns"><button class="pri" data-act="saveedit" data-di="${di}">Salva</button><button data-act="closeedit">Annulla</button></div></div>`;
+  $('#sheet').classList.add('on');
+}
+
+/* ---------- RENDER ---------- */
+function render(){
+  $('#view').innerHTML=tab==='plan'?viewPlan():tab==='ov'?viewOverview():tab==='set'?viewSettings():viewExport();
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  renderPrint();save();
+}
+function apply(){
+  S.startDate=iso(mondayOf(dayNum(S.startDate)));
+  if(S.maxWD<S.minWD)S.maxWD=S.minWD;
+  plan=newPlan(S);cur=0;const f=genAll(S,plan);
+  tab='plan';render();
+  toast(f.length?'Impossibile rispettare tutte le regole in '+f.length+' settimana/e':'Piano generato ✅');
+  if(f.length)setTimeout(()=>alert('Settimana '+(f[0]+1)+': '+diagnose(S,plan,f[0])+'.\nAllenta le regole e riprova.'),100);
+}
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-act],nav button');if(!t)return;
+  if(t.dataset.tab){tab=t.dataset.tab;render();window.scrollTo(0,0);return;}
+  const a=t.dataset.act,di=+t.dataset.di;
+  switch(a){
+    case 'prev':cur=Math.max(0,cur-1);render();break;
+    case 'next':cur=Math.min(plan.length-1,cur+1);render();break;
+    case 'goto':cur=+t.dataset.wi;tab='plan';render();break;
+    case 'edit':openEdit(di);break;
+    case 'closeedit':$('#sheet').classList.remove('on');break;
+    case 'saveedit':{
+      const d=plan[cur].days[di];d.note=$('#e_n').value.trim();d.pos=$('#e_p').value;
+      if($('#e_r').checked){d.rest=true;d.s=d.e=null;d.pos='';}
+      else{const s=t2m($('#e_s').value),e=t2m($('#e_e').value);
+        if(e<=s){toast('La fine deve essere dopo l’inizio');return;}d.rest=false;d.s=s;d.e=e;}
+      $('#sheet').classList.remove('on');render();break;}
+    case 'regen':
+      if(genWeek(S,plan,cur)){toast('Settimana rigenerata ✅');}else toast('Impossibile: '+diagnose(S,plan,cur));
+      render();break;
+    case 'regenall':{const f=genAll(S,plan);render();toast(f.length?'Alcune settimane non generabili: allenta le regole':'Piano rigenerato ✅');break;}
+    case 'apply':apply();break;
+    case 'copyday':{const src=S.days[di];S.days.forEach((d,i)=>{if(i!==di)S.days[i]=JSON.parse(JSON.stringify(Object.assign({},src,{avail:d.avail})));});render();toast('Copiato su tutti i giorni (disponibilità esclusa)');break;}
+    case 'addfascia':{const id='F'+Date.now().toString(36);S.fasce.push({id,name:'Nuova fascia',mode:'start',from:540,to:720});render();break;}
+    case 'delfascia':if(S.fasce.length>1){S.fasce.splice(+t.dataset.i,1);render();}else toast('Serve almeno una fascia');break;
+    case 'addvac':{
+      const f=$('#vf').value,e=$('#vt').value||f;if(!f){toast('Scegli la data');return;}
+      for(let n=dayNum(f);n<=dayNum(e);n++){const x=iso(n);if(!S.vacations.includes(x))S.vacations.push(x);}
+      S.vacations.sort();vacFrom=vacTo='';render();break;}
+    case 'delvac':S.vacations.splice(+t.dataset.i,1);render();break;
+    case 'reset':if(confirm('Ripristinare le impostazioni predefinite? Il piano attuale resta.')){S=defaultSettings(todayIso());render();}break;
+    case 'copytxt':copy(asText());break;
+    case 'sharetxt':if(navigator.share)navigator.share({text:asText()}).catch(()=>{});else copy(asText());break;
+    case 'csv':download('turni.csv','text/csv;charset=utf-8',asCSV());break;
+    case 'ics':download('turni.ics','text/calendar',asICS());break;
+    case 'print':window.print();break;
+    case 'backup':download('turni-backup.json','application/json',JSON.stringify({v:APP_VERSION,S,plan,cur}));break;
+    case 'pdf':exportPDF();break;
+  }
+});
+document.addEventListener('change',ev=>{
+  const el=ev.target;
+  if(el.id==='restore'){
+    const f=el.files[0];if(!f)return;const r=new FileReader();
+    r.onload=()=>{try{const j=JSON.parse(r.result);S=merge(defaultSettings(todayIso()),j.S);plan=j.plan;cur=0;tab='plan';render();toast('Backup ripristinato ✅');}catch(e){toast('File non valido');}};
+    r.readAsText(f);return;
+  }
+  if(el.dataset.wt){const v=el.value;plan[cur].target=v===''?null:Math.round(parseFloat(v)*60);render();return;}
+  if(el.id==='vf'){vacFrom=el.value;return;}if(el.id==='vt'){vacTo=el.value;return;}
+  const p=el.dataset.bind;if(!p)return;
+  const t=el.dataset.t;let v;
+  if(t==='check')v=el.checked;
+  else if(t==='int'||t==='selnum')v=parseInt(el.value,10)||0;
+  else if(t==='hours')v=Math.round((parseFloat(el.value)||0)*60);
+  else if(t==='time')v=t2m(el.value);
+  else if(t==='lines')v=el.value.split('\n').map(x=>x.trim()).filter(Boolean);
+  else v=el.value;
+  if(t==='date'&&v){v=iso(mondayOf(dayNum(v)));el.value=v;}
+  set(p,v);save();
+  if(p.endsWith('.mode')||/^fasce\.\d+\.name$/.test(p))render();
+});
+if('serviceWorker' in navigator&&false){}
+load();$('#ver').textContent='v'+APP_VERSION;render();
+
+</script></body></html>
