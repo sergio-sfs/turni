@@ -38,7 +38,7 @@ summary{padding:13px 0;font-weight:600;cursor:pointer}.sec{padding-bottom:12px}.
 .chip{background:var(--bg);border:1px solid var(--b);border-radius:20px;padding:4px 10px;font-size:14px}.chip b{cursor:pointer;margin-left:4px}
 table.ov{border-collapse:collapse;width:100%;text-align:center;font-size:13px}
 table.ov th,table.ov td{padding:8px 4px;border-bottom:1px solid var(--b);border-right:1px solid var(--b)}
-table.ov td{cursor:pointer;background-repeat:no-repeat;background-size:100% 4px;background-position:top}table.ov td.am{background-image:linear-gradient(var(--am),var(--am))}table.ov td.pm{background-image:linear-gradient(var(--pm),var(--pm))}table.ov td.late{background-image:linear-gradient(var(--late),var(--late))}table.ov td.rest{color:var(--m)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}.dot.am{background:var(--am)}.dot.pm{background:var(--pm)}.dot.late{background:var(--late)}.f2{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b)}.f2 span{flex:1}.f2 small{color:var(--m)}.f2 input{width:62px;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t);text-align:center}.guide h4{margin:10px 0 4px}.guide p,.guide li{font-size:15px;margin:4px 0}.guide ul{padding-left:20px;margin:4px 0}
+table.ov td{cursor:pointer;background-repeat:no-repeat;background-size:100% 4px;background-position:top}table.ov td.am{background-image:linear-gradient(var(--am),var(--am))}table.ov td.pm{background-image:linear-gradient(var(--pm),var(--pm))}table.ov td.late{background-image:linear-gradient(var(--late),var(--late))}table.ov td.rest{color:var(--m)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}.dot.am{background:var(--am)}.dot.pm{background:var(--pm)}.dot.late{background:var(--late)}.f2{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b)}.f2 span{flex:1}.f2 small{color:var(--m)}.f2 input{width:62px;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t);text-align:center}.wk{color:var(--m);font-weight:400}.nav small{color:var(--m);font-weight:400}.guide h4{margin:10px 0 4px}.guide p,.guide li{font-size:15px;margin:4px 0}.guide ul{padding-left:20px;margin:4px 0}
 .tt{font-weight:700}
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--c);border-top:1px solid var(--b);padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padding:10px 2px}nav button.on{color:var(--p);font-weight:700}
@@ -53,7 +53,7 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.5.6';
+const APP_VERSION='1.6.0';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -65,6 +65,7 @@ function iso(n){const d=new Date(n*864e5);return d.getUTCFullYear()+'-'+pad(d.ge
 function ddmm(n){const d=new Date(n*864e5);return pad(d.getUTCDate())+'/'+pad(d.getUTCMonth()+1);}
 function ddmmyyyy(n){return ddmm(n)+'/'+new Date(n*864e5).getUTCFullYear();}
 function mondayOf(n){return n-((((n+3)%7)+7)%7);}
+function isoWeek(n){const t=mondayOf(n)+3,y=new Date(t*864e5).getUTCFullYear();return Math.floor((t-Math.round(Date.UTC(y,0,1)/864e5))/7)+1;}
 function todayIso(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 
 function defaultSettings(today){
@@ -315,7 +316,7 @@ function parseText(text){
   const plan=planFromShifts(sh);
   return plan?{plan,code}:null;
 }
-if(typeof module!=='undefined')module.exports={parseCSV,parseICS,parseText,planFromShifts,DAYN,defaultSettings,newPlan,genAll,genWeek,validate,weekTotal,dayNum,iso,m2t,dur,mondayOf,diagnose};
+if(typeof module!=='undefined')module.exports={isoWeek,parseCSV,parseICS,parseText,planFromShifts,DAYN,defaultSettings,newPlan,genAll,genWeek,validate,weekTotal,dayNum,iso,m2t,dur,mondayOf,diagnose};
 
 const KEY='turni.v1';
 let S,plan,cur=0,tab='plan',vacFrom='',vacTo='';
@@ -375,8 +376,8 @@ function viewPlan(){
       <div class="hh">${d.rest?'0:00':dur(d.e-d.s)}${bad?' ⚠️':''}</div></div>`;}).join('');
   const il=iss.length?`<div class="warn">${iss.map(x=>`<div>⚠️ ${x.di==null?'Settimana':DAYN[x.di]+' '+ddmm(base+x.di)}: ${esc(x.msg)}</div>`).join('')}</div>`:'<div class="okbox">✅ Tutte le regole rispettate</div>';
   return `<div class="nav"><button data-act="prev" ${cur==0?'disabled':''}>‹</button>
-    <div>Settimana ${cur+1} / ${plan.length}</div><button data-act="next" ${cur==plan.length-1?'disabled':''}>›</button></div>
-  <div class="card"><div class="ch"><b>${ddmmyyyy(base)} – ${ddmmyyyy(base+6)}</b>
+    <div>Settimana ${isoWeek(base)} <small>(${cur+1} di ${plan.length})</small></div><button data-act="next" ${cur==plan.length-1?'disabled':''}>›</button></div>
+  <div class="card"><div class="ch"><b>${ddmmyyyy(base)} – ${ddmmyyyy(base+6)}</b> <small class="wk">sett. ${isoWeek(base)}</small>
     <span class="tot ${ok?'g':'o'}">${dur(tot)} / ${dur(T)} ${ok?'✅':'⚠️'}</span></div>${rows}</div>
   <div class="legend"><span class="am">Mattina</span><span class="pm">Pomeriggio</span><span class="late">Chiusura</span></div>
   ${il}
@@ -390,7 +391,7 @@ function viewPlan(){
 }
 function viewOverview(){
   const iss=validate(plan,S);
-  let h='<div class="card scroll"><table class="ov"><tr><th></th>'+plan.map((w,i)=>`<th data-act="goto" data-wi="${i}">${ddmm(dayNum(w.start))}</th>`).join('')+'</tr>';
+  let h='<div class="card scroll"><table class="ov"><tr><th></th>'+plan.map((w,i)=>`<th data-act="goto" data-wi="${i}">S${isoWeek(dayNum(w.start))}<br>${ddmm(dayNum(w.start))}</th>`).join('')+'</tr>';
   for(let di=0;di<7;di++){
     h+=`<tr><th>${DAYN[di]}</th>`+plan.map((w,wi)=>{const d=w.days[di];
       return `<td class="${cls(d)}" data-act="oedit" data-wi="${wi}" data-di="${di}">${d.rest?'Riposo':m2t(d.s)+'<br>'+m2t(d.e)+(d.pos?`<br><small class="pos">${esc(d.pos)}</small>`:'')}${iss[wi].some(x=>x.di===di)?' ⚠️':''}</td>`;}).join('')+'</tr>';
@@ -468,7 +469,7 @@ function viewSettings(){
 /* ---------- ESPORTA ---------- */
 function asText(){
   return plan.map(w=>{const b=dayNum(w.start);
-    return 'Turni '+ddmmyyyy(b)+' – '+ddmmyyyy(b+6)+' ('+dur(weekTotal(w))+')\n'+w.days.map((d,di)=>
+    return 'Turni '+ddmmyyyy(b)+' – '+ddmmyyyy(b+6)+' (sett. '+isoWeek(b)+', '+dur(weekTotal(w))+')\n'+w.days.map((d,di)=>
       DAYN[di]+' '+ddmm(b+di)+'  '+(d.rest?'Riposo':m2t(d.s)+' – '+m2t(d.e)+'  ('+dur(d.e-d.s)+')')+(d.pos?'  ['+d.pos+']':'')+(d.note?'  '+d.note:'')).join('\n');}).join('\n\n');
 }
 function asCSV(){
@@ -510,7 +511,7 @@ function viewExport(){
 }
 function renderPrint(){
   $('#print').innerHTML=plan.map(w=>{const b=dayNum(w.start);
-    return `<h3>${ddmmyyyy(b)} – ${ddmmyyyy(b+6)} <span>${dur(weekTotal(w))}</span></h3><table>`+w.days.map((d,di)=>
+    return `<h3>Sett. ${isoWeek(b)} · ${ddmmyyyy(b)} – ${ddmmyyyy(b+6)} <span>${dur(weekTotal(w))}</span></h3><table>`+w.days.map((d,di)=>
       `<tr><td>${DAYN[di]} ${ddmm(b+di)}</td><td>${d.rest?'Riposo':m2t(d.s)+' – '+m2t(d.e)}${d.pos?' · '+esc(d.pos):''}${d.note?' ('+esc(d.note)+')':''}</td><td>${d.rest?'0:00':dur(d.e-d.s)}</td></tr>`).join('')+'</table>';}).join('');
 }
 
@@ -536,7 +537,7 @@ function makePDF(){
   plan.forEach(w=>{
     if(y+HH+4+7*RH+14>H-M-18)newPage();
     const b=dayNum(w.start),x1=M,x2=W-M,xc=W-M-60;
-    txt(M+8,y+16,12,ddmmyyyy(b)+' - '+ddmmyyyy(b+6),true);
+    txt(M+8,y+16,12,ddmmyyyy(b)+' - '+ddmmyyyy(b+6),true);txt(M+210,y+16,9,'sett. '+isoWeek(b),false,GR);
     txt(xc+8,y+12,10,dur(weekTotal(w)),true);txt(xc+8,y+23,10,dur(T(w)),true);y+=HH+4;
     const top=y;
     w.days.forEach((d,di)=>{
@@ -560,7 +561,7 @@ function makePDF(){
     const ws=plan.slice(c0,c0+K),cw=Math.min(110,(W-2*M-36)/ws.length),tw=36+cw*ws.length,RH2=34;
     if(y+22+7*RH2+24+20>H-M-18)newPage();
     rect(M,y,tw,22,[0.9,0.92,0.96]);
-    ws.forEach((w,i)=>txt(M+36+i*cw+6,y+15,10,ddmm(dayNum(w.start))+' - '+ddmm(dayNum(w.start)+6),true));y+=22;
+    ws.forEach((w,i)=>txt(M+36+i*cw+6,y+15,9.5,'S'+isoWeek(dayNum(w.start))+' '+ddmm(dayNum(w.start))+'-'+ddmm(dayNum(w.start)+6),true));y+=22;
     const top=y;
     for(let di=0;di<7;di++){
       txt(M+6,y+21,10,DAYN[di],true);
@@ -685,7 +686,7 @@ function viewHelp(){
   <details><summary>🗂️ Panoramica</summary><div class="sec"><ul>
     <li>Tabella giorni × settimane con il totale ore. Tocca una casella per inserire o modificare il turno.</li>
     <li><b>Salva e avanti ▶</b> passa al giorno successivo (e alla settimana dopo) per compilare di seguito.</li>
-    <li>Tocca la data in alto per aprire quella settimana. La barra colorata in alto indica la fascia.</li>
+    <li>Tocca la data in alto per aprire quella settimana (S48 = settimana 48 dell’anno). La barra colorata in alto indica la fascia.</li>
     <li>Aggiungi settimana, elimina l’ultima o svuota tutto con i pulsanti sotto.</li></ul></div></details>
   <details><summary>⚙️ Impostazioni</summary><div class="sec"><ul>
     <li><b>Periodo:</b> primo lunedì e numero di settimane.</li>
