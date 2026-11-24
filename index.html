@@ -38,7 +38,7 @@ summary{padding:13px 0;font-weight:600;cursor:pointer}.sec{padding-bottom:12px}.
 .chip{background:var(--bg);border:1px solid var(--b);border-radius:20px;padding:4px 10px;font-size:14px}.chip b{cursor:pointer;margin-left:4px}
 table.ov{border-collapse:collapse;width:100%;text-align:center;font-size:13px}
 table.ov th,table.ov td{padding:8px 4px;border-bottom:1px solid var(--b);border-right:1px solid var(--b)}
-table.ov td{cursor:pointer;background-repeat:no-repeat;background-size:100% 4px;background-position:top}table.ov td.am{background-image:linear-gradient(var(--am),var(--am))}table.ov td.pm{background-image:linear-gradient(var(--pm),var(--pm))}table.ov td.late{background-image:linear-gradient(var(--late),var(--late))}table.ov td.rest{color:var(--m)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}.dot.am{background:var(--am)}.dot.pm{background:var(--pm)}.dot.late{background:var(--late)}.f2{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b)}.f2 span{flex:1}.f2 small{color:var(--m)}.f2 input{width:62px;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t);text-align:center}.wk{color:var(--m);font-weight:400}.nav small{color:var(--m);font-weight:400}.guide h4{margin:10px 0 4px}.guide p,.guide li{font-size:15px;margin:4px 0}.guide ul{padding-left:20px;margin:4px 0}
+table.ov td{cursor:pointer;background-repeat:no-repeat;background-size:100% 4px;background-position:top}table.ov td.am{background-image:linear-gradient(var(--am),var(--am))}table.ov td.pm{background-image:linear-gradient(var(--pm),var(--pm))}table.ov td.late{background-image:linear-gradient(var(--late),var(--late))}table.ov td.rest{color:var(--m)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}.dot.am{background:var(--am)}.dot.pm{background:var(--pm)}.dot.late{background:var(--late)}.f2{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b)}.f2 span{flex:1}.f2 small{color:var(--m)}.f2 input{width:62px;font:inherit;padding:8px;border:1px solid var(--b);border-radius:9px;background:var(--bg);color:var(--t);text-align:center}.wk{color:var(--m);font-weight:400}.nav small{color:var(--m);font-weight:400}details.hw summary{padding:12px 14px}details.hw{padding:0}.guide h4{margin:10px 0 4px}.guide p,.guide li{font-size:15px;margin:4px 0}.guide ul{padding-left:20px;margin:4px 0}
 .tt{font-weight:700}
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--c);border-top:1px solid var(--b);padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padding:10px 2px}nav button.on{color:var(--p);font-weight:700}
@@ -53,7 +53,7 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.6.0';
+const APP_VERSION='1.7.0';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -319,7 +319,7 @@ function parseText(text){
 if(typeof module!=='undefined')module.exports={isoWeek,parseCSV,parseICS,parseText,planFromShifts,DAYN,defaultSettings,newPlan,genAll,genWeek,validate,weekTotal,dayNum,iso,m2t,dur,mondayOf,diagnose};
 
 const KEY='turni.v1';
-let S,plan,cur=0,tab='plan',vacFrom='',vacTo='';
+let S,plan,cur=0,tab='plan',vacFrom='',vacTo='',archive={};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function merge(def,s){
@@ -334,11 +334,21 @@ function merge(def,s){
 function load(){
   try{
     const j=JSON.parse(localStorage.getItem(KEY));
-    if(j&&j.S&&j.plan){S=merge(defaultSettings(todayIso()),j.S);plan=j.plan;cur=Math.min(j.cur||0,plan.length-1);return;}
+    if(j&&j.S&&j.plan){S=merge(defaultSettings(todayIso()),j.S);plan=j.plan;archive=j.archive||{};cur=Math.min(j.cur||0,plan.length-1);return;}
   }catch(e){}
   S=defaultSettings(todayIso());plan=newPlan(S);genAll(S,plan);
 }
-function save(){try{localStorage.setItem(KEY,JSON.stringify({S,plan,cur}));}catch(e){}}
+function snap(){plan.forEach(w=>{if(w.days.some(d=>!d.rest))archive[w.start]=JSON.parse(JSON.stringify(w));});}
+function save(){try{snap();localStorage.setItem(KEY,JSON.stringify({S,plan,cur,archive}));}catch(e){}}
+function genCtx(){
+  const f=dayNum(plan[0].start),l=dayNum(plan[plan.length-1].start),pre=archive[iso(f-7)],post=archive[iso(l+7)];
+  return {arr:[...(pre?[pre]:[]),...plan,...(post?[post]:[])],off:pre?1:0};
+}
+function genWeekU(wi){const c=genCtx();return genWeek(S,c.arr,wi+c.off);}
+function genAllU(){
+  plan.forEach(w=>{w.days=restDays();});
+  const c=genCtx(),f=[];plan.forEach((w,wi)=>{if(!genWeek(S,c.arr,wi+c.off))f.push(wi);});return f;
+}
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600);}
 const get=p=>p.split('.').reduce((o,k)=>o==null?o:o[k],S);
 function set(p,v){const k=p.split('.');const last=k.pop();k.reduce((o,x)=>o[x],S)[last]=v;}
@@ -400,7 +410,8 @@ function viewOverview(){
     return `<td class="tt ${Math.abs(t-T)<=S.tolMin?'g':'o'}">${dur(t)}</td>`;}).join('')+'</tr></table></div>';
   return h+`<div class="legend"><span class="am">Mattina</span><span class="pm">Pomeriggio</span><span class="late">Chiusura</span></div><p class="hint">Tocca una casella per inserire o modificare il turno (con “Salva e avanti” compili tutto di seguito). Tocca la data in alto per aprire la settimana.</p>
   <div class="btns"><button data-act="addweek">➕ Aggiungi settimana</button><button data-act="delweek">➖ Elimina ultima</button></div>
-  <div class="btns"><button data-act="clearall">🧹 Svuota tutto il piano</button></div>`;
+  <div class="btns"><button data-act="clearall">🧹 Svuota tutto il piano</button></div>
+  <div class="btns"><button class="pri" data-act="hist">📚 Storico settimane</button></div>`;
 }
 
 /* ---------- IMPOSTAZIONI ---------- */
@@ -641,7 +652,7 @@ function importString(text,ext){
   try{
     if(ext==='json'){
       const j=JSON.parse(text);
-      if(j&&j.plan)return applyImported(j.plan,null,j.S);
+      if(j&&j.plan){if(j.archive)archive=Object.assign({},archive,j.archive);return applyImported(j.plan,null,j.S);}
       if(Array.isArray(j))return applyImported(j);
       return toast('JSON non riconosciuto');
     }
@@ -667,6 +678,22 @@ function importFile(f){
 }
 
 
+
+/* ---------- STORICO ---------- */
+function viewHist(){
+  const inPlan=new Set(plan.map(w=>w.start)),keys=Object.keys(archive).sort().reverse();
+  const items=keys.map(k=>{
+    const w=archive[k],b=dayNum(k),ip=inPlan.has(k),t=weekTotal(w);
+    const rows=w.days.map((d,di)=>`<div class="row ${cls(d)}" style="cursor:default"><div class="dn">${DAYN[di]} <small>${ddmm(b+di)}</small></div><div class="tm">${d.rest?'Riposo':m2t(d.s)+' – '+m2t(d.e)}${d.pos?`<br><small class="pos">${esc(d.pos)}</small>`:''}${d.note?` <em>${esc(d.note)}</em>`:''}</div><div class="hh">${d.rest?'0:00':dur(d.e-d.s)}</div></div>`).join('');
+    return `<details class="card hw"><summary><b>S${isoWeek(b)}</b> · ${ddmm(b)} – ${ddmmyyyy(b+6)} · ${dur(t)}${ip?' <span class="g">· nel piano</span>':''}</summary>${rows}
+      <div class="btns" style="padding:8px 12px"><button class="pri" data-act="hrestore" data-k="${k}">📥 ${ip?'Apri nel piano':'Riporta nel piano'}</button>${ip?'':`<button data-act="hdel" data-k="${k}">🗑️ Elimina</button>`}</div></details>`;
+  }).join('');
+  return `<div class="btns"><button data-act="ovback">← Panoramica</button></div><h3 style="margin:6px 2px">📚 Storico settimane</h3>
+  <p class="hint">Ogni settimana con turni viene salvata qui automaticamente, anche quando generi un nuovo piano o importi altri turni. La generazione riguarda solo le settimane del piano attuale.</p>
+  ${items||'<p class="hint">Ancora nessuna settimana salvata.</p>'}
+  ${keys.some(k=>!inPlan.has(k))?'<button class="danger" data-act="hclear">🗑️ Svuota storico (settimane fuori dal piano)</button>':''}`;
+}
+
 /* ---------- GUIDA ---------- */
 function viewHelp(){
   return `<div class="card guide" style="padding:6px 14px 14px">
@@ -687,7 +714,8 @@ function viewHelp(){
     <li>Tabella giorni × settimane con il totale ore. Tocca una casella per inserire o modificare il turno.</li>
     <li><b>Salva e avanti ▶</b> passa al giorno successivo (e alla settimana dopo) per compilare di seguito.</li>
     <li>Tocca la data in alto per aprire quella settimana (S48 = settimana 48 dell’anno). La barra colorata in alto indica la fascia.</li>
-    <li>Aggiungi settimana, elimina l’ultima o svuota tutto con i pulsanti sotto.</li></ul></div></details>
+    <li>Aggiungi settimana, elimina l’ultima o svuota tutto con i pulsanti sotto.</li>
+    <li><b>Storico settimane:</b> ogni settimana con turni viene salvata da sola, anche dopo aver generato o importato un nuovo piano. Dallo storico puoi vederla e riportarla nel piano.</li></ul></div></details>
   <details><summary>⚙️ Impostazioni</summary><div class="sec"><ul>
     <li><b>Periodo:</b> primo lunedì e numero di settimane.</li>
     <li><b>Ore e regole:</b> ore settimanali, tolleranza, giorni lavorati min/max, giorni di fila, riposo minimo tra turni, passo minuti, preferenza sui riposi (indifferente, consecutivi, separati).</li>
@@ -710,9 +738,9 @@ function viewHelp(){
 /* ---------- RENDER ---------- */
 function render(){
   const keep=tab==='set'?[...document.querySelectorAll('#view details')].map(d=>d.open):null,ys=window.scrollY;
-  $('#view').innerHTML=tab==='plan'?viewPlan():tab==='ov'?viewOverview():tab==='set'?viewSettings():tab==='help'?viewHelp():viewExport();
+  $('#view').innerHTML=tab==='plan'?viewPlan():tab==='ov'?viewOverview():tab==='set'?viewSettings():tab==='help'?viewHelp():tab==='hist'?viewHist():viewExport();
   if(keep&&tab==='set'){document.querySelectorAll('#view details').forEach((d,i)=>{if(keep[i]!==undefined)d.open=keep[i];});window.scrollTo(0,ys);}
-  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab||(tab==='hist'&&b.dataset.tab==='ov')));
   renderPrint();save();
 }
 const askRegen=m=>!S.confirmRegen||confirm(m);
@@ -720,7 +748,7 @@ function apply(){
   if(!askRegen('Generare di nuovo il piano con le impostazioni attuali? I turni attuali verranno sostituiti.'))return;
   S.startDate=iso(mondayOf(dayNum(S.startDate)));
   if(S.maxWD<S.minWD)S.maxWD=S.minWD;
-  plan=newPlan(S);cur=0;const f=genAll(S,plan);
+  plan=newPlan(S);cur=0;const f=genAllU();
   tab='plan';render();
   toast(f.length?'Impossibile rispettare tutte le regole in '+f.length+' settimana/e':'Piano generato ✅');
   if(f.length)setTimeout(()=>alert('Settimana '+(f[0]+1)+': '+diagnose(S,plan,f[0])+'.\nAllenta le regole e riprova.'),100);
@@ -730,6 +758,13 @@ document.addEventListener('click',ev=>{
   if(t.dataset.tab){tab=t.dataset.tab;render();window.scrollTo(0,0);return;}
   const a=t.dataset.act,di=+t.dataset.di;
   switch(a){
+    case 'hist':tab='hist';render();window.scrollTo(0,0);break;
+    case 'ovback':tab='ov';render();window.scrollTo(0,0);break;
+    case 'hrestore':{const k=t.dataset.k,w=JSON.parse(JSON.stringify(archive[k])),i=plan.findIndex(x=>x.start===k);
+      if(i>=0)cur=i;else{plan.push(w);plan.sort((a,b)=>a.start<b.start?-1:1);cur=plan.findIndex(x=>x.start===k);}
+      S.weeks=plan.length;S.startDate=plan[0].start;tab='plan';render();toast('Settimana nel piano ✅');break;}
+    case 'hdel':if(confirm('Eliminare questa settimana dallo storico?')){delete archive[t.dataset.k];render();}break;
+    case 'hclear':if(confirm('Eliminare dallo storico tutte le settimane fuori dal piano attuale?')){const s=new Set(plan.map(w=>w.start));Object.keys(archive).forEach(k=>{if(!s.has(k))delete archive[k];});render();}break;
     case 'chk':checkUpdate(true);break;
     case 'reload':location.replace(location.pathname+'?v='+APP_VERSION+'&t='+Date.now());break;
     case 'upd':location.replace(location.pathname+'?v='+newV+'&t='+Date.now());break;
@@ -754,9 +789,9 @@ document.addEventListener('click',ev=>{
     case 'clearall':if(confirm('Svuotare tutto il piano (tutti i giorni a riposo)?')){plan.forEach(w=>{w.days=restDays();});render();}break;
     case 'regen':
       if(!askRegen('Rigenerare questa settimana? I turni attuali verranno sostituiti.'))break;
-      if(genWeek(S,plan,cur)){toast('Settimana rigenerata ✅');}else toast('Impossibile: '+diagnose(S,plan,cur));
+      if(genWeekU(cur)){toast('Settimana rigenerata ✅');}else toast('Impossibile: '+diagnose(S,plan,cur));
       render();break;
-    case 'regenall':{if(!askRegen('Rigenerare tutto il piano? Tutti i turni attuali (anche le modifiche manuali) verranno sostituiti.'))break;const f=genAll(S,plan);render();toast(f.length?'Alcune settimane non generabili: allenta le regole':'Piano rigenerato ✅');break;}
+    case 'regenall':{if(!askRegen('Rigenerare tutto il piano? Tutti i turni attuali (anche le modifiche manuali) verranno sostituiti.'))break;const f=genAllU();render();toast(f.length?'Alcune settimane non generabili: allenta le regole':'Piano rigenerato ✅');break;}
     case 'apply':apply();break;
     case 'copyday':{const src=S.days[di];S.days.forEach((d,i)=>{if(i!==di)S.days[i]=JSON.parse(JSON.stringify(Object.assign({},src,{avail:d.avail})));});render();toast('Copiato su tutti i giorni (disponibilità esclusa)');break;}
     case 'addfascia':{const id='F'+Date.now().toString(36);S.fasce.push({id,name:'Nuova fascia',mode:'start',from:540,to:720});render();break;}
@@ -775,7 +810,7 @@ document.addEventListener('click',ev=>{
     case 'ics':download('turni.ics','text/calendar',asICS());break;
     case 'print':{const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
       if(ios)exportPDF();else window.print();break;}
-    case 'backup':download('turni-backup.json','application/json',JSON.stringify({v:APP_VERSION,S,plan,cur}));break;
+    case 'backup':download('turni-backup.json','application/json',JSON.stringify({v:APP_VERSION,S,plan,cur,archive}));break;
     case 'pdf':exportPDF();break;
   }
 });
