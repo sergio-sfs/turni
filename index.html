@@ -53,7 +53,7 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.5.3';
+const APP_VERSION='1.5.4';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -492,10 +492,10 @@ function viewExport(){
   <button data-act="sharetxt">📤 Condividi testo</button>
   <button data-act="csv">📊 Scarica CSV (Excel)</button>
   <button data-act="ics">📆 Scarica calendario (.ics)</button>
-  <button data-act="print">🖨️ Stampa / salva PDF</button>
+  <button data-act="print">🖨️ Stampa</button>
   <button data-act="backup">💾 Backup completo (.json)</button>
   <label class="filebtn">📥 Importa file<input type="file" accept=".json,.csv,.ics,.txt,.pdf,application/json,application/pdf,text/csv,text/calendar,text/plain" id="imp"></label></div>
-  <p class="hint">Importa: backup .json, CSV, calendario .ics, testo .txt e PDF creati da questa app. Per un PDF-foto (come il foglio turni cartaceo) copia il testo dalla foto (iPhone: tieni premuto sul testo › Copia) e incollalo qui sotto.</p>
+  <p class="hint">Importa: backup .json, CSV, calendario .ics, testo .txt e PDF creati da questa app. Su iPhone “Stampa” apre il PDF con il menu di condivisione (Stampa, Salva in File…). Per un PDF-foto (come il foglio turni cartaceo) copia il testo dalla foto (iPhone: tieni premuto sul testo › Copia) e incollalo qui sotto.</p>
   <textarea id="imptxt" rows="6" placeholder="Incolla qui il testo dei turni…"></textarea>
   <div class="btns"><button data-act="imptxt">📝 Importa dal testo incollato</button></div>`;
 }
@@ -761,16 +761,21 @@ document.addEventListener('click',ev=>{
     case 'sharetxt':if(navigator.share)navigator.share({text:asText()}).catch(()=>{});else copy(asText());break;
     case 'csv':download('turni.csv','text/csv;charset=utf-8',asCSV());break;
     case 'ics':download('turni.ics','text/calendar',asICS());break;
-    case 'print':window.print();break;
+    case 'print':{const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+      if(ios)exportPDF();else window.print();break;}
     case 'backup':download('turni-backup.json','application/json',JSON.stringify({v:APP_VERSION,S,plan,cur}));break;
     case 'pdf':exportPDF();break;
   }
+});
+document.addEventListener('input',ev=>{
+  const el=ev.target;
+  if(el.id==='bgc'){S.bg=el.value;applyTheme();document.querySelectorAll('.swb.on').forEach(b=>b.classList.remove('on'));}
 });
 document.addEventListener('change',ev=>{
   const el=ev.target;
   if(el.id==='imp'){const f=el.files[0];if(f)importFile(f);el.value='';return;}
   if(el.dataset.wd){const v=el.value;plan[cur].wd=v===''?null:Math.max(1,Math.min(7,parseInt(v,10)||1));render();return;}
-  if(el.id==='bgc'){S.bg=el.value;applyTheme();save();render();return;}
+  if(el.id==='bgc'){S.bg=el.value;applyTheme();save();return;}
   if(el.dataset.wt){const v=el.value;plan[cur].target=v===''?null:Math.round(parseFloat(v)*60);render();return;}
   if(el.id==='vf'){vacFrom=el.value;return;}if(el.id==='vt'){vacTo=el.value;return;}
   const p=el.dataset.bind;if(!p)return;
