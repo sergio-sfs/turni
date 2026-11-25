@@ -17,6 +17,7 @@ header{padding:calc(14px + env(safe-area-inset-top)) 16px 6px;font-weight:700;fo
 .ch{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--b);gap:8px;flex-wrap:wrap}
 .tot{font-weight:700}.g{color:var(--g)}.o{color:var(--o)}
 .row{display:grid;grid-template-columns:64px 1fr auto;gap:8px;padding:12px 14px;border-bottom:1px solid var(--b);border-left:5px solid transparent;cursor:pointer}
+.row.today{background:rgba(37,99,235,.14);box-shadow:inset 0 0 0 2px var(--p)}.row.today .dn:after{content:' • oggi';color:var(--p);font-size:12px;font-weight:700}table.ov td.today{box-shadow:inset 0 0 0 2px var(--p);background-color:rgba(37,99,235,.14)}table.ov th.today{color:var(--p);text-decoration:underline}
 .row:last-child{border-bottom:0}.row.am{border-left-color:var(--am)}.row.pm{border-left-color:var(--pm)}.row.late{border-left-color:var(--late)}.row.rest{color:var(--m)}
 .dn{font-weight:700}.dn small{font-weight:400;color:var(--m)}.hh{font-variant-numeric:tabular-nums;font-weight:600}.tm em{color:var(--m);font-size:13px}
 .legend{display:flex;gap:12px;font-size:13px;color:var(--m);margin:2px 4px 8px}.legend span:before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;background:currentColor}
@@ -54,7 +55,7 @@ nav button{flex:1;border:0;border-radius:0;background:none;font-size:11.5px;padd
 <div id="sheet"></div><div id="toast"></div><div id="print"></div>
 <script>
 'use strict';
-const APP_VERSION='1.9.2';
+const APP_VERSION='1.9.3';
 const DAYN=['Lu','Ma','Me','Gi','Ve','Sa','Do'];
 const DAYF=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const pad=n=>String(n).padStart(2,'0');
@@ -319,6 +320,7 @@ function parseText(text){
 }
 if(typeof module!=='undefined')module.exports={isoWeek,parseCSV,parseICS,parseText,planFromShifts,DAYN,defaultSettings,newPlan,genAll,genWeek,validate,weekTotal,dayNum,iso,m2t,dur,mondayOf,diagnose};
 
+const TODN=dayNum(todayIso());
 const KEY='turni.v1';
 let S,plan,cur=0,tab='plan',vacFrom='',vacTo='',archive={};
 const $=s=>document.querySelector(s);
@@ -381,7 +383,7 @@ function viewPlan(){
   const tot=weekTotal(w),T=w.target==null?S.targetMin:w.target,ok=Math.abs(tot-T)<=S.tolMin;
   const rows=w.days.map((d,di)=>{
     const bad=iss.some(x=>x.di===di);
-    return `<div class="row ${cls(d)}" data-act="edit" data-di="${di}">
+    return `<div class="row ${cls(d)}${base+di===TODN?' today':''}" data-act="edit" data-di="${di}">
       <div class="dn">${DAYN[di]} <small>${ddmm(base+di)}</small></div>
       <div class="tm">${d.rest?'Riposo':m2t(d.s)+' – '+m2t(d.e)}${d.pos?`<br><small class="pos">${esc(d.pos)}</small>`:''}${d.note?` <em>${esc(d.note)}</em>`:''}</div>
       <div class="hh">${d.rest?'0:00':dur(d.e-d.s)}${bad?' ⚠️':''}</div></div>`;}).join('');
@@ -404,8 +406,8 @@ function viewOverview(){
   const iss=validate(plan,S);
   let h='<div class="card scroll"><table class="ov" style="min-width:'+(34+plan.length*84)+'px"><colgroup><col style="width:34px">'+plan.map(()=>'<col>').join('')+'</colgroup><tr><th></th>'+plan.map((w,i)=>`<th data-act="goto" data-wi="${i}">S${isoWeek(dayNum(w.start))}<br>${ddmm(dayNum(w.start))}</th>`).join('')+'</tr>';
   for(let di=0;di<7;di++){
-    h+=`<tr><th>${DAYN[di]}</th>`+plan.map((w,wi)=>{const d=w.days[di];
-      return `<td class="${cls(d)}" data-act="oedit" data-wi="${wi}" data-di="${di}">${d.rest?'Riposo':m2t(d.s)+'<br>'+m2t(d.e)+(d.pos?`<br><small class="pos">${esc(d.pos)}</small>`:'')}${iss[wi].some(x=>x.di===di)?' ⚠️':''}</td>`;}).join('')+'</tr>';
+    h+=`<tr><th${plan.some(w=>dayNum(w.start)+di===TODN)?' class="today"':''}>${DAYN[di]}</th>`+plan.map((w,wi)=>{const d=w.days[di];
+      return `<td class="${cls(d)}${dayNum(w.start)+di===TODN?' today':''}" data-act="oedit" data-wi="${wi}" data-di="${di}">${d.rest?'Riposo':m2t(d.s)+'<br>'+m2t(d.e)+(d.pos?`<br><small class="pos">${esc(d.pos)}</small>`:'')}${iss[wi].some(x=>x.di===di)?' ⚠️':''}</td>`;}).join('')+'</tr>';
   }
   h+='<tr><th>Ore</th>'+plan.map((w,wi)=>{const t=weekTotal(w),T=w.target==null?S.targetMin:w.target;
     return `<td class="tt ${Math.abs(t-T)<=S.tolMin?'g':'o'}">${dur(t)}</td>`;}).join('')+'</tr></table></div>';
